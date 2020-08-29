@@ -1,0 +1,1 @@
+# obj-props-dynamic-setter
