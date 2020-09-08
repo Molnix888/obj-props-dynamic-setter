@@ -9,6 +9,8 @@ namespace ObjPropsDynamicSetter
     /// </summary>
     public static class ObjectExtensions
     {
+        private const char Delimiter = '.';
+
         /// <summary>
         /// Gets the property info via its name.
         /// </summary>
@@ -40,7 +42,7 @@ namespace ObjPropsDynamicSetter
 
             if (info.PropertyInfo.ReflectedType?.IsValueType ?? false)
             {
-                var index = name.LastIndexOf('.');
+                var index = name.LastIndexOf(Delimiter);
 
                 if (index > 0)
                 {
@@ -78,7 +80,7 @@ namespace ObjPropsDynamicSetter
 
             PropertyInfo propertyInfo;
 
-            if (name.Contains('.', StringComparison.InvariantCulture))
+            if (name.Contains(Delimiter, StringComparison.InvariantCulture))
             {
                 var nestedObjectInfo = obj.GetNestedObjectPropInfo(type, name);
                 propertyInfo = nestedObjectInfo.PropertyInfo;
@@ -94,7 +96,7 @@ namespace ObjPropsDynamicSetter
 
         private static (object Obj, PropertyInfo PropertyInfo) GetNestedObjectPropInfo(this object obj, Type type, string name)
         {
-            var nestedNames = name.Split('.', StringSplitOptions.RemoveEmptyEntries);
+            var nestedNames = name.Split(Delimiter, StringSplitOptions.RemoveEmptyEntries);
 
             PropertyInfo propertyInfo = null;
 
