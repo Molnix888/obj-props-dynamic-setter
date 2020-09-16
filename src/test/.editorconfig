@@ -1,0 +1,16 @@
+# C# files
+[*.cs]
+
+## StyleCop rules ##
+
+# SA1600: Elements should be documented
+dotnet_diagnostic.SA1600.severity = none
+
+# SA1602: Enumeration items should be documented
+dotnet_diagnostic.SA1602.severity = none
+
+# SA1614: Element parameter documentation should have text
+dotnet_diagnostic.SA1614.severity = none
+
+# SA1606: Element documentation should have summary text
+dotnet_diagnostic.SA1606.severity = none

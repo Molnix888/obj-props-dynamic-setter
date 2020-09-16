@@ -1,37 +1,23 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using FluentAssertions;
 using NUnit.Framework;
 using ObjPropsDynamicSetter.Test.Unit.Models;
 
 namespace ObjPropsDynamicSetter.Test.Unit
 {
-    /// <summary>
-    /// Contains tests for object extension methods.
-    /// </summary>
     [TestFixture]
     public class ObjectExtensionsTests
     {
-        /// <summary>
-        /// Tests SetPropertyValue extension method for class model.
-        /// </summary>
-        /// <param name="propertyName">Property name.</param>
-        /// <param name="value">Value to assign to property.</param>
         [Test]
         [TestCaseSource(nameof(GetValidTestClassData))]
         public void SetPropertyValueTestClassSuccess(string propertyName, object value)
         {
             var obj = GetTestClass();
             obj.SetPropertyValue(propertyName, value);
-            _ = obj.GetPropertyValue<object>(propertyName).Should().Be(value);
+            Assert.That(obj.GetPropertyValue<object>(propertyName), Is.EqualTo(value));
         }
 
-        /// <summary>
-        /// Tests SetPropertyValue extension method for struct model.
-        /// </summary>
-        /// <param name="propertyName">Property name.</param>
-        /// <param name="value">Value to assign to property.</param>
         [Test]
         [TestCaseSource(nameof(GetValidTestStructData))]
         public void SetPropertyValueTestStructSuccess(string propertyName, object value)
@@ -39,7 +25,15 @@ namespace ObjPropsDynamicSetter.Test.Unit
             var obj = GetTestStruct();
             var expected = obj.GetPropertyValue<object>(propertyName);
             obj.SetPropertyValue(propertyName, value);
-            _ = obj.GetPropertyValue<object>(propertyName).Should().Be(expected);
+            Assert.That(obj.GetPropertyValue<object>(propertyName), Is.EqualTo(expected));
+        }
+
+        [Test]
+        [TestCaseSource(nameof(GetRequiredDataNull))]
+        public void SetPropertyValueNullReferenceException(object obj, string propertyName)
+        {
+            var value = 1;
+            Assert.That(() => obj.SetPropertyValue(propertyName, value), Throws.ArgumentNullException);
         }
 
         private static IEnumerable<object[]> GetValidTestClassData()
@@ -66,18 +60,29 @@ namespace ObjPropsDynamicSetter.Test.Unit
             yield return new object[] { "NullableDateTimeValue", null };
             yield return new object[] { "NullableDateTimeValue", DateTime.Parse("1990-06-13", CultureInfo.InvariantCulture) };
             yield return new object[] { "EnumValue", TestEnumeration.Second };
-            yield return new object[] { "StructValue", new TestStruct { IntValue = 12, InternalByteValue = 6, InternalTestModel = new InternalTestClass { InternalStringValue = "str", IntValue = 1 } } };
-            yield return new object[] { "StructValue.InternalByteValue", 5 };
-            yield return new object[] { "StructValue.InternalTestModel", new InternalTestClass { InternalStringValue = "internal string", IntValue = 45 } };
-            yield return new object[] { "StructValue.InternalTestModel.InternalStringValue", "some string" };
-            yield return new object[] { "StructValue.InternalTestModel.IntValue", -78954 };
+            yield return new object[] { "TestStruct", new TestStruct { IntValue = 12, InternalByteValue = 6, InternalTestClass = new InternalTestClass { InternalStringValue = "str", IntValue = 1 }, InternalTestStruct = new InternalTestStruct { InternalCharValue = 'l' } } };
+            yield return new object[] { "TestStruct.InternalByteValue", 5 };
+            yield return new object[] { "TestStruct.InternalTestClass", new InternalTestClass { InternalStringValue = "internal string", IntValue = 45 } };
+            yield return new object[] { "TestStruct.InternalTestClass.InternalStringValue", "some string" };
+            yield return new object[] { "TestStruct.InternalTestClass.IntValue", -78954 };
+            yield return new object[] { "TestStruct.InternalTestStruct", new InternalTestStruct { InternalCharValue = '!' } };
+            yield return new object[] { "TestStruct.InternalTestStruct.InternalCharValue", ' ' };
+            yield return new object[] { "InternalTestClass", new InternalTestClass { InternalStringValue = "str1", IntValue = 9438 } };
+            yield return new object[] { "InternalTestClass.InternalStringValue", "str2" };
             yield return new object[] { "IntCollectionValue", new int[] { 9, 3 } };
         }
 
         private static IEnumerable<object[]> GetValidTestStructData()
         {
             yield return new object[] { "IntValue", 63 };
-            yield return new object[] { "InternalTestModel", new InternalTestClass { InternalStringValue = "something", IntValue = -2 } };
+            yield return new object[] { "InternalTestClass", new InternalTestClass { InternalStringValue = "something", IntValue = -2 } };
+            yield return new object[] { "InternalTestStruct", new InternalTestStruct { InternalCharValue = '/' } };
+        }
+
+        private static IEnumerable<object[]> GetRequiredDataNull()
+        {
+            yield return new object[] { null, "test" };
+            yield return new object[] { GetTestClass(), null };
         }
 
         private static TestClass GetTestClass() => new TestClass
@@ -101,17 +106,21 @@ namespace ObjPropsDynamicSetter.Test.Unit
             NullableIntValue = 347,
             NullableDateTimeValue = DateTime.Now,
             EnumValue = TestEnumeration.First,
-            StructValue = new TestStruct
+            TestStruct = new TestStruct
             {
                 IntValue = 27,
                 InternalByteValue = 2,
-                InternalTestModel = new InternalTestClass
+                InternalTestClass = new InternalTestClass
                 {
                     InternalStringValue = "foo",
                     IntValue = 7,
                 },
+                InternalTestStruct = new InternalTestStruct
+                {
+                    InternalCharValue = 'k',
+                },
             },
-            InternalTestModel = new InternalTestClass(),
+            InternalTestClass = new InternalTestClass(),
             IntCollectionValue = new List<int> { 1, 5, 6 },
         };
 
@@ -119,10 +128,14 @@ namespace ObjPropsDynamicSetter.Test.Unit
         {
             IntValue = 875,
             InternalByteValue = 48,
-            InternalTestModel = new InternalTestClass
+            InternalTestClass = new InternalTestClass
             {
                 InternalStringValue = "struct test",
                 IntValue = -37789,
+            },
+            InternalTestStruct = new InternalTestStruct
+            {
+                InternalCharValue = 'c',
             },
         };
     }
