@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Reflection;
 
 namespace ObjPropsDynamicSetter
@@ -9,18 +11,21 @@ namespace ObjPropsDynamicSetter
     /// </summary>
     public static class ObjectExtensions
     {
-        private const char Delimiter = '.';
-
         /// <summary>
         /// Gets the property info via its name.
         /// </summary>
         /// <param name="obj">Object instance.</param>
         /// <param name="name">Property name.</param>
+        /// <param name="delimiter">delimiter.</param>
         /// <returns>Property information.</returns>
         /// <exception cref="ArgumentNullException">Object or property name is null.</exception>
         /// <exception cref="ArgumentException">Property is not found in object.</exception>
         /// <exception cref="AmbiguousMatchException">More than one property is found with the specified name.</exception>
-        public static PropertyInfo GetPropertyInfo(this object obj, string name) => obj.GetObjectPropInfo(name).PropertyInfo;
+        public static PropertyInfo GetPropertyInfo(this object obj, string name, char delimiter = '.')
+        {
+            ValidateParameters(obj, name);
+            return GetPropertyInfo<object>(obj, name.Split(delimiter, StringSplitOptions.RemoveEmptyEntries).ToList()).PropertyInfo;
+        }
 
         /// <summary>
         /// Sets the property value via its name.
@@ -28,28 +33,14 @@ namespace ObjPropsDynamicSetter
         /// <param name="obj">Object instance.</param>
         /// <param name="name">Property name.</param>
         /// <param name="value">Value to assign to property.</param>
+        /// <param name="delimiter">delimiter.</param>
         /// <exception cref="ArgumentNullException">Object or property name is null.</exception>
         /// <exception cref="ArgumentException">Property is not found in object.</exception>
         /// <exception cref="AmbiguousMatchException">More than one property is found with the specified name.</exception>
-        public static void SetPropertyValue(this object obj, string name, object value)
+        public static void SetPropertyValue(this object obj, string name, object value, char delimiter = '.')
         {
-            var info = obj.GetObjectPropInfo(name);
-            var type = Nullable.GetUnderlyingType(info.PropertyInfo.PropertyType) ?? info.PropertyInfo.PropertyType;
-
-            value = value is IConvertible ? Convert.ChangeType(value, type, CultureInfo.InvariantCulture) : value;
-
-            info.PropertyInfo.SetValue(info.Obj, value);
-
-            if (info.PropertyInfo.ReflectedType?.IsValueType ?? false)
-            {
-                var index = name.LastIndexOf(Delimiter);
-
-                if (index > 0)
-                {
-                    name = name.Substring(0, index);
-                    obj.SetPropertyValue(name, info.Obj);
-                }
-            }
+            ValidateParameters(obj, name);
+            SetPropertyValue(obj, name.Split(delimiter, StringSplitOptions.RemoveEmptyEntries).ToList(), value);
         }
 
         /// <summary>
@@ -58,60 +49,70 @@ namespace ObjPropsDynamicSetter
         /// <typeparam name="T">Property type.</typeparam>
         /// <param name="obj">Object instance.</param>
         /// <param name="name">Property name.</param>
+        /// <param name="delimiter">delimiter.</param>
         /// <returns>Property value.</returns>
         /// <exception cref="ArgumentNullException">Object or property name is null.</exception>
         /// <exception cref="ArgumentException">Property is not found in object.</exception>
         /// <exception cref="AmbiguousMatchException">More than one property is found with the specified name.</exception>
         /// <exception cref="InvalidCastException">Property value cannot be casted to expected return type.</exception>
-        public static T GetPropertyValue<T>(this object obj, string name)
+        public static T GetPropertyValue<T>(this object obj, string name, char delimiter = '.')
         {
-            var info = obj.GetObjectPropInfo(name);
-            return (T)info.PropertyInfo.GetValue(info.Obj);
+            ValidateParameters(obj, name);
+            return GetPropertyInfo<T>(obj, name.Split(delimiter, StringSplitOptions.RemoveEmptyEntries).ToList()).Value;
         }
 
-        private static (object Obj, PropertyInfo PropertyInfo) GetObjectPropInfo(this object obj, string name)
+        private static (T Value, PropertyInfo PropertyInfo) GetPropertyInfo<T>(object obj, ICollection<string> propertyPathItems)
         {
-            var type = obj?.GetType() ?? throw new ArgumentNullException(nameof(obj));
+            var (_, cutPropertyPathItems, propertyInfo) = GetFirstPropertyDetails(obj, propertyPathItems);
 
-            if (name is null)
+            if (!cutPropertyPathItems.Any())
             {
-                throw new ArgumentNullException(nameof(name));
+                return ((T)propertyInfo.GetValue(obj), propertyInfo);
             }
 
-            PropertyInfo propertyInfo;
+            var innerObject = propertyInfo.GetValue(obj);
+            return GetPropertyInfo<T>(innerObject, propertyPathItems);
+        }
 
-            if (name.Contains(Delimiter, StringComparison.InvariantCulture))
+        private static void SetPropertyValue(this object obj, ICollection<string> propertyPathItems, object value)
+        {
+            var (name, cutPropertyPathItems, propertyInfo) = GetFirstPropertyDetails(obj, propertyPathItems);
+
+            if (cutPropertyPathItems.Any())
             {
-                var nestedObjectInfo = obj.GetNestedObjectPropInfo(type, name);
-                propertyInfo = nestedObjectInfo.PropertyInfo;
-                obj = nestedObjectInfo.Obj;
+                var innerObject = propertyInfo.GetValue(obj);
+                innerObject.SetPropertyValue(cutPropertyPathItems, value);
+
+                obj.SetPropertyValue(name, innerObject);
             }
             else
             {
-                propertyInfo = type.GetTypePropInfo(name);
+                var propertyType = Nullable.GetUnderlyingType(propertyInfo.PropertyType) ?? propertyInfo.PropertyType;
+                value = value is IConvertible ? Convert.ChangeType(value, propertyType, CultureInfo.InvariantCulture) : value;
+                propertyInfo.SetValue(obj, value);
             }
-
-            return (obj, propertyInfo);
         }
 
-        private static (object Obj, PropertyInfo PropertyInfo) GetNestedObjectPropInfo(this object obj, Type type, string name)
+        private static void ValidateParameters(object obj, string name)
         {
-            var nestedNames = name.Split(Delimiter, StringSplitOptions.RemoveEmptyEntries);
-
-            PropertyInfo propertyInfo = null;
-
-            for (var i = 0; i < nestedNames.Length; i++)
+            if (string.IsNullOrWhiteSpace(name))
             {
-                propertyInfo = type.GetTypePropInfo(nestedNames[i]);
-
-                if (i != nestedNames.Length - 1)
-                {
-                    type = propertyInfo.PropertyType;
-                    obj = propertyInfo.GetValue(obj);
-                }
+                throw new ArgumentOutOfRangeException(nameof(name));
             }
 
-            return (obj, propertyInfo);
+            if (obj is null)
+            {
+                throw new ArgumentNullException(nameof(obj));
+            }
+        }
+
+        private static (string PropertyName, ICollection<string> PropertyPathItems, PropertyInfo PropertyInfo) GetFirstPropertyDetails(object obj, ICollection<string> propertyPathItems)
+        {
+            var name = propertyPathItems.First();
+            _ = propertyPathItems.Remove(name);
+            var propertyInfo = obj.GetType().GetTypePropInfo(name);
+
+            return (name, propertyPathItems, propertyInfo);
         }
 
         private static PropertyInfo GetTypePropInfo(this Type type, string name) => type.GetProperty(name) ?? throw new ArgumentException($"Property {name} not found in {type}.");
