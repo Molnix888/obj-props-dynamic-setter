@@ -269,7 +269,7 @@ dotnet_diagnostic.SA1309.severity = none
 # SA1633: File should have header
 dotnet_diagnostic.SA1633.severity = none
 
-# SX1101: DoNotPrefixLocalMembersWithThis
+# SX1101: Do not prefix local members with this
 dotnet_diagnostic.SX1101.severity = warning
 
 # SX1309: Field names should begin with underscore
