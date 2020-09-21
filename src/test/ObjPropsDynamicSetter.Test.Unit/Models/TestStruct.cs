@@ -8,7 +8,7 @@ namespace ObjPropsDynamicSetter.Test.Unit.Models
 
         public byte InternalByteValue { get; set; }
 
-        public InternalTestClass InternalTestClass { get; set; }
+        public NestedTestClass InternalTestClass { get; set; }
 
         public InternalTestStruct InternalTestStruct { get; set; }
 
