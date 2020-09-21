@@ -6,23 +6,23 @@ namespace ObjPropsDynamicSetter.Test.Unit.Models
     {
         public int IntValue { get; set; }
 
-        public byte InternalByteValue { get; set; }
+        public byte ByteValue { get; set; }
 
-        public NestedTestClass InternalTestClass { get; set; }
+        public NestedTestClass NestedTestClass { get; set; }
 
-        public InternalTestStruct InternalTestStruct { get; set; }
+        public NestedTestStruct NestedTestStruct { get; set; }
 
         public static bool operator ==(TestStruct left, TestStruct right) => left.Equals(right);
 
         public static bool operator !=(TestStruct left, TestStruct right) => !(left == right);
 
-        public override int GetHashCode() => HashCode.Combine(IntValue, InternalByteValue, InternalTestClass, InternalTestStruct);
+        public override int GetHashCode() => HashCode.Combine(IntValue, ByteValue, NestedTestClass, NestedTestStruct);
 
         public bool Equals(TestStruct other) => IntValue == other.IntValue
-            && InternalByteValue == other.InternalByteValue
-            && InternalTestClass.Equals(other.InternalTestClass)
-            && InternalTestStruct == other.InternalTestStruct;
+            && ByteValue == other.ByteValue
+            && NestedTestClass.Equals(other.NestedTestClass)
+            && NestedTestStruct == other.NestedTestStruct;
 
-        public override bool Equals(object obj) => obj is TestStruct @struct && Equals(@struct);
+        public override bool Equals(object obj) => obj is TestStruct testStruct && Equals(testStruct);
     }
 }

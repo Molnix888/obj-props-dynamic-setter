@@ -9,7 +9,7 @@ namespace ObjPropsDynamicSetter.Test.Unit.Models
 #pragma warning disable CA1051 // Do not declare visible instance fields
 #pragma warning disable IDE1006 // Naming Styles
 #pragma warning disable SA1401 // Fields should be private
-        public object ObjectField = 1;
+        public object TestField = 1;
 #pragma warning restore SA1401 // Fields should be private
 #pragma warning restore IDE1006 // Naming Styles
 #pragma warning restore CA1051 // Do not declare visible instance fields
@@ -59,11 +59,11 @@ namespace ObjPropsDynamicSetter.Test.Unit.Models
         public TestStruct TestStruct { get; set; } = new TestStruct
         {
             IntValue = 27,
-            InternalByteValue = 2,
-            InternalTestClass = new NestedTestClass(),
-            InternalTestStruct = new InternalTestStruct
+            ByteValue = 2,
+            NestedTestClass = new NestedTestClass(),
+            NestedTestStruct = new NestedTestStruct
             {
-                InternalCharValue = 'k',
+                NestedCharValue = 'k',
             },
         };
 
@@ -71,7 +71,7 @@ namespace ObjPropsDynamicSetter.Test.Unit.Models
 
         internal short InternalShortValue { get; set; } = -1654;
 
-        protected static NestedTestClass InternalTestClass { get; set; } = new NestedTestClass();
+        protected static NestedTestClass ProtectedNestedTestClass { get; set; } = new NestedTestClass();
 
 #pragma warning disable CA1822 // Mark members as static
         public void TestMethod()
