@@ -11,36 +11,21 @@ namespace ObjPropsDynamicSetter
     /// </summary>
     public static class ObjectExtensions
     {
+        private const char Delimiter = '.';
+
         /// <summary>
         /// Gets the property info via its name.
         /// </summary>
         /// <param name="obj">Object instance.</param>
         /// <param name="name">Property name.</param>
-        /// <param name="delimiter">delimiter.</param>
+        /// <param name="includeNonPublic">Indicates whether to include non-public properties.</param>
         /// <returns>Property information.</returns>
-        /// <exception cref="ArgumentNullException">Object or property name is null.</exception>
-        /// <exception cref="ArgumentException">Property is not found in object.</exception>
-        /// <exception cref="AmbiguousMatchException">More than one property is found with the specified name.</exception>
-        public static PropertyInfo GetPropertyInfo(this object obj, string name, char delimiter = '.')
+        /// <exception cref="ArgumentNullException">Object is null.</exception>
+        /// <exception cref="ArgumentException">Property is not found in object or property name is null or empty.</exception>
+        public static PropertyInfo GetPropertyInfo(this object obj, string name, bool includeNonPublic = false)
         {
             ValidateParameters(obj, name);
-            return GetPropertyInfo<object>(obj, name.Split(delimiter, StringSplitOptions.RemoveEmptyEntries).ToList()).PropertyInfo;
-        }
-
-        /// <summary>
-        /// Sets the property value via its name.
-        /// </summary>
-        /// <param name="obj">Object instance.</param>
-        /// <param name="name">Property name.</param>
-        /// <param name="value">Value to assign to property.</param>
-        /// <param name="delimiter">delimiter.</param>
-        /// <exception cref="ArgumentNullException">Object or property name is null.</exception>
-        /// <exception cref="ArgumentException">Property is not found in object.</exception>
-        /// <exception cref="AmbiguousMatchException">More than one property is found with the specified name.</exception>
-        public static void SetPropertyValue(this object obj, string name, object value, char delimiter = '.')
-        {
-            ValidateParameters(obj, name);
-            SetPropertyValue(obj, name.Split(delimiter, StringSplitOptions.RemoveEmptyEntries).ToList(), value);
+            return obj.GetPropertyDetails(GetPropertyPathItems(name), includeNonPublic).PropertyInfo;
         }
 
         /// <summary>
@@ -49,72 +34,111 @@ namespace ObjPropsDynamicSetter
         /// <typeparam name="T">Property type.</typeparam>
         /// <param name="obj">Object instance.</param>
         /// <param name="name">Property name.</param>
-        /// <param name="delimiter">delimiter.</param>
+        /// <param name="includeNonPublic">Indicates whether to include non-public properties.</param>
         /// <returns>Property value.</returns>
-        /// <exception cref="ArgumentNullException">Object or property name is null.</exception>
-        /// <exception cref="ArgumentException">Property is not found in object.</exception>
-        /// <exception cref="AmbiguousMatchException">More than one property is found with the specified name.</exception>
+        /// <exception cref="ArgumentNullException">Object is null.</exception>
+        /// <exception cref="ArgumentException">Property is not found in object or property name is null or empty.</exception>
         /// <exception cref="InvalidCastException">Property value cannot be casted to expected return type.</exception>
-        public static T GetPropertyValue<T>(this object obj, string name, char delimiter = '.')
+        public static T GetPropertyValue<T>(this object obj, string name, bool includeNonPublic = false)
         {
             ValidateParameters(obj, name);
-            return GetPropertyInfo<T>(obj, name.Split(delimiter, StringSplitOptions.RemoveEmptyEntries).ToList()).Value;
+            return (T)obj.GetPropertyDetails(GetPropertyPathItems(name), includeNonPublic).Value;
         }
 
-        private static (T Value, PropertyInfo PropertyInfo) GetPropertyInfo<T>(object obj, ICollection<string> propertyPathItems)
+        /// <summary>
+        /// Sets the property value via its name.
+        /// </summary>
+        /// <typeparam name="T">Property type.</typeparam>
+        /// <param name="obj">Object instance.</param>
+        /// <param name="name">Property name.</param>
+        /// <param name="value">Value to assign to property.</param>
+        /// <param name="includeNonPublic">Indicates whether to include non-public properties.</param>
+        /// <exception cref="ArgumentNullException">Object is null.</exception>
+        /// <exception cref="ArgumentException">Property is not found in object or property name is null or empty.</exception>
+        /// <exception cref="InvalidCastException">Property value cannot be casted to expected return type.</exception>
+        /// <exception cref="OverflowException">Number is out of the range of conversionType.</exception>
+        /// <returns>Updated object.</returns>
+        public static T SetPropertyValue<T>(this object obj, string name, object value, bool includeNonPublic = false)
         {
-            var (_, cutPropertyPathItems, propertyInfo) = GetFirstPropertyDetails(obj, propertyPathItems);
-
-            if (!cutPropertyPathItems.Any())
-            {
-                return ((T)propertyInfo.GetValue(obj), propertyInfo);
-            }
-
-            var innerObject = propertyInfo.GetValue(obj);
-            return GetPropertyInfo<T>(innerObject, propertyPathItems);
+            ValidateParameters(obj, name);
+            return (T)obj.SetPropertyValue(GetPropertyPathItems(name), value, includeNonPublic);
         }
 
-        private static void SetPropertyValue(this object obj, ICollection<string> propertyPathItems, object value)
+        private static (object Value, PropertyInfo PropertyInfo) GetPropertyDetails(this object obj, ICollection<string> propertyPathItems, bool includeNonPublic)
         {
-            var (name, cutPropertyPathItems, propertyInfo) = GetFirstPropertyDetails(obj, propertyPathItems);
+            var (_, cutPropertyPathItems, propertyInfo) = GetFirstPropertyDetails(obj, propertyPathItems, includeNonPublic);
 
             if (cutPropertyPathItems.Any())
             {
                 var innerObject = propertyInfo.GetValue(obj);
-                innerObject.SetPropertyValue(cutPropertyPathItems, value);
+                return innerObject.GetPropertyDetails(propertyPathItems, includeNonPublic);
+            }
 
-                obj.SetPropertyValue(name, innerObject);
+            return (propertyInfo.GetValue(obj), propertyInfo);
+        }
+
+        private static object SetPropertyValue(this object obj, ICollection<string> propertyPathItems, object value, bool includeNonPublic)
+        {
+            var (propertyName, cutPropertyPathItems, propertyInfo) = GetFirstPropertyDetails(obj, propertyPathItems, includeNonPublic);
+
+            if (cutPropertyPathItems.Any())
+            {
+                var innerObject = propertyInfo.GetValue(obj);
+                _ = innerObject.SetPropertyValue(cutPropertyPathItems, value, includeNonPublic);
+
+                propertyInfo = obj.GetObjectPropertyInfo(propertyName, includeNonPublic);
+                obj.SetPropertyValue(propertyInfo, innerObject);
             }
             else
             {
-                var propertyType = Nullable.GetUnderlyingType(propertyInfo.PropertyType) ?? propertyInfo.PropertyType;
-                value = value is IConvertible ? Convert.ChangeType(value, propertyType, CultureInfo.InvariantCulture) : value;
-                propertyInfo.SetValue(obj, value);
+                obj.SetPropertyValue(propertyInfo, value);
             }
+
+            return obj;
         }
+
+        private static void SetPropertyValue(this object obj, PropertyInfo propertyInfo, object value)
+        {
+            var propertyType = Nullable.GetUnderlyingType(propertyInfo.PropertyType) ?? propertyInfo.PropertyType;
+            value = value is IConvertible ? Convert.ChangeType(value, propertyType, CultureInfo.InvariantCulture) : value;
+            propertyInfo.SetValue(obj, value);
+        }
+
+        private static (string Name, ICollection<string> PathItems, PropertyInfo Info) GetFirstPropertyDetails(object obj, ICollection<string> pathItems, bool includeNonPublic)
+        {
+            var name = pathItems.First();
+            _ = pathItems.Remove(name);
+            var propertyInfo = obj.GetObjectPropertyInfo(name, includeNonPublic);
+
+            return (name, pathItems, propertyInfo);
+        }
+
+        private static PropertyInfo GetObjectPropertyInfo(this object obj, string name, bool includeNonPublic)
+        {
+            var flags = BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public;
+
+            if (includeNonPublic)
+            {
+                flags |= BindingFlags.NonPublic;
+            }
+
+            var type = obj.GetType();
+            return type.GetProperty(name, flags) ?? throw new ArgumentException($"Property {name} not found in {type}.");
+        }
+
+        private static ICollection<string> GetPropertyPathItems(string path) => path.Split(Delimiter, StringSplitOptions.RemoveEmptyEntries).ToList();
 
         private static void ValidateParameters(object obj, string name)
         {
-            if (string.IsNullOrWhiteSpace(name))
-            {
-                throw new ArgumentOutOfRangeException(nameof(name));
-            }
-
             if (obj is null)
             {
                 throw new ArgumentNullException(nameof(obj));
             }
+
+            if (string.IsNullOrEmpty(name))
+            {
+                throw new ArgumentException("Property name cannot be null or empty.");
+            }
         }
-
-        private static (string PropertyName, ICollection<string> PropertyPathItems, PropertyInfo PropertyInfo) GetFirstPropertyDetails(object obj, ICollection<string> propertyPathItems)
-        {
-            var name = propertyPathItems.First();
-            _ = propertyPathItems.Remove(name);
-            var propertyInfo = obj.GetType().GetTypePropInfo(name);
-
-            return (name, propertyPathItems, propertyInfo);
-        }
-
-        private static PropertyInfo GetTypePropInfo(this Type type, string name) => type.GetProperty(name) ?? throw new ArgumentException($"Property {name} not found in {type}.");
     }
 }
