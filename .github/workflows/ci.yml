@@ -31,15 +31,35 @@ jobs:
         with:
           project-token: ${{ secrets.CODACY_TOKEN }}
           coverage-reports: coverage.cobertura.xml
-  deploy:
+  publish:
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master' && github.event_name == 'push'
     steps:
       - name: Checkout Code
         uses: actions/checkout@v2
+      - name: Fetch all history for all tags and branches
+        run: git fetch --prune --unshallow
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: '3.1.x'
-      - name: Publish
-        run: dotnet publish **/ObjPropsDynamicSetter.App.sln -c Release
+      - name: Install GitVersion
+        uses: gittools/actions/gitversion/setup@v0.9.4
+        with:
+          versionSpec: '5.2.x'
+      - name: Use GitVersion
+        id: gitversion
+        uses: gittools/actions/gitversion/execute@v0.9.4
+      - name: Add GitHub Packages Source
+        run: dotnet nuget add source https://nuget.pkg.github.com/Molnix888/index.json -n github -u Molnix888 -p ${{ secrets.GITHUB_TOKEN }} --store-password-in-clear-text
+      - name: Pack
+        run: dotnet pack **/ObjPropsDynamicSetter.App.sln -o nuget -c Release -p:PackageVersion=${{ steps.gitversion.outputs.semVer }}
+      - name: Publish to NuGet
+        run: dotnet nuget push nuget/*.nupkg -k ${{ secrets.NUGET_API_KEY }} -s https://api.nuget.org/v3/index.json -n true
+      - name: Publish to GitHub Packages
+        run: dotnet nuget push nuget/*.nupkg -s "github" -n true
+      - name: Tag Commit
+        uses: tvdias/github-tagger@v0.0.2
+        with:
+          repo-token: "${{ secrets.GITHUB_TOKEN }}"
+          tag: "${{ steps.gitversion.outputs.semVer }}"
