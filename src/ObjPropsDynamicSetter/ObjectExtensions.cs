@@ -7,7 +7,7 @@ using System.Reflection;
 namespace ObjPropsDynamicSetter
 {
     /// <summary>
-    /// Provides methods to access object properties via their names.
+    /// Provides extension methods to access object properties via their names.
     /// </summary>
     public static class ObjectExtensions
     {
@@ -48,16 +48,16 @@ namespace ObjPropsDynamicSetter
         /// <summary>
         /// Sets the property value via its name.
         /// </summary>
-        /// <typeparam name="T">Property type.</typeparam>
+        /// <typeparam name="T">Object type.</typeparam>
         /// <param name="obj">Object instance.</param>
         /// <param name="name">Property name.</param>
         /// <param name="value">Value to assign to property.</param>
         /// <param name="includeNonPublic">Indicates whether to include non-public properties.</param>
+        /// <returns>Updated object.</returns>
         /// <exception cref="ArgumentNullException">Object is null.</exception>
         /// <exception cref="ArgumentException">Property is not found in object or property name is null or empty.</exception>
         /// <exception cref="InvalidCastException">Property value cannot be casted to expected return type.</exception>
         /// <exception cref="OverflowException">Number is out of the range of conversionType.</exception>
-        /// <returns>Updated object.</returns>
         public static T SetPropertyValue<T>(this object obj, string name, object value, bool includeNonPublic = false)
         {
             ValidateParameters(obj, name);
