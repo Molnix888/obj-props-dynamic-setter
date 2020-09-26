@@ -16,14 +16,14 @@ jobs:
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: '3.1.x'
-      - name: Install dependencies
-        run: dotnet restore **/ObjPropsDynamicSetter.sln
-      - name: Build
-        run: dotnet build **/ObjPropsDynamicSetter.sln -c Release --no-restore
       - name: Lint Code Base
         uses: github/super-linter@v3
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Install dependencies
+        run: dotnet restore **/ObjPropsDynamicSetter.sln
+      - name: Build
+        run: dotnet build **/ObjPropsDynamicSetter.sln -c Release --no-restore
       - name: Unit Tests
         run: dotnet test **/ObjPropsDynamicSetter.Test.sln --no-restore --verbosity normal --collect:"XPlat Code Coverage"
       - name: Run codacy-coverage-reporter
