@@ -176,7 +176,7 @@ namespace ObjPropsDynamicSetter.Test.Unit
             yield return new object[] { "TestStruct.NestedTestStruct", new NestedTestStruct { NestedCharValue = '!' }, true };
             yield return new object[] { "TestStruct.NestedTestStruct.NestedCharValue", ' ', false };
             yield return new object[] { "ProtectedNestedTestClass.PrivateIntValue", 8347, true };
-            yield return new object[] { "IntCollectionValue", new int[] { 9, 3 }, false };
+            yield return new object[] { "IntCollectionValue", new[] { 9, 3 }, false };
             yield return new object[] { "StaticIntValue", 13, false };
             yield return new object[] { "InternalShortValue", 90, true };
         }
