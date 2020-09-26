@@ -1,8 +1,13 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <TargetFramework>netstandard2.1</TargetFramework>
+    <Authors>Eugene Klimeshuk (Molnix888)</Authors>
+    <Product>ObjPropsDynamicSetter</Product>
+    <Description>A small library for manipulating properties via their names known only at runtime</Description>
+    <PackageProjectUrl>https://github.com/Molnix888/obj-props-dynamic-setter</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/Molnix888/obj-props-dynamic-setter</RepositoryUrl>
   </PropertyGroup>
 
 </Project>
