@@ -30,7 +30,7 @@ jobs:
         uses: codacy/codacy-coverage-reporter-action@master
         with:
           project-token: ${{ secrets.CODACY_TOKEN }}
-          coverage-reports: coverage.cobertura.xml
+          coverage-reports: ${{ github.workspace }}/coverage.cobertura.xml
   publish:
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master' && github.event_name == 'push'
