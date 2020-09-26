@@ -1,0 +1,25 @@
+# C# files
+[*.cs]
+
+## StyleCop rules ##
+
+# SA0001: Xml comment analysis disabled
+dotnet_diagnostic.SA0001.severity = none
+
+# SA1600: Elements should be documented
+dotnet_diagnostic.SA1600.severity = none
+
+# SA1601: Partial elements should be documented
+dotnet_diagnostic.SA1601.severity = none
+
+# SA1602: Enumeration items should be documented
+dotnet_diagnostic.SA1602.severity = none
+
+# SA1611: Element parameters must be documented
+dotnet_diagnostic.SA1611.severity = none
+
+# SA1615: Element return value must be documented
+dotnet_diagnostic.SA1615.severity = none
+
+# SA1618: Generic type parameters must be documented
+dotnet_diagnostic.SA1618.severity = none
