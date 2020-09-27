@@ -34,6 +34,7 @@ jobs:
           project-token: ${{ secrets.CODACY_TOKEN }}
           coverage-reports: coverage.cobertura.xml
   publish:
+    needs: test
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master' && github.event_name == 'push'
     steps:
@@ -57,9 +58,9 @@ jobs:
       - name: Pack
         run: dotnet pack **/ObjPropsDynamicSetter.App.sln -o nuget -c Release -p:PackageVersion=${{ steps.gitversion.outputs.semVer }}
       - name: Publish to NuGet
-        run: dotnet nuget push nuget/*.nupkg -k ${{ secrets.NUGET_API_KEY }} -s https://api.nuget.org/v3/index.json -n true
+        run: dotnet nuget push nuget/*.nupkg -k ${{ secrets.NUGET_API_KEY }} -s https://api.nuget.org/v3/index.json -n true --skip-duplicate
       - name: Publish to GitHub Packages
-        run: dotnet nuget push nuget/*.nupkg -s "github" -n true
+        run: dotnet nuget push nuget/*.nupkg -s "github" -n true --skip-duplicate
       - name: Tag Commit
         uses: tvdias/github-tagger@v0.0.2
         with:
