@@ -51,4 +51,4 @@ var value = model.GetPropertyValue<int>(propertyName);
 
 ## Download
 
-The latest release of ObjPropsDynamicSetter is available on [NuGet](https://www.nuget.org/packages/TBD/) or can be downloaded from [GitHub](https://github.com/Molnix888/obj-props-dynamic-setter/packages).
+The latest release of ObjPropsDynamicSetter is available on [NuGet](https://www.nuget.org/packages/ObjPropsDynamicSetter/) or can be downloaded from [GitHub](https://github.com/Molnix888/obj-props-dynamic-setter/packages).
