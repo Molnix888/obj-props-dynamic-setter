@@ -1,5 +1,7 @@
 # ObjPropsDynamicSetter
 
+![CI](https://github.com/Molnix888/obj-props-dynamic-setter/workflows/CI/badge.svg) [![Codacy Badge](https://app.codacy.com/project/badge/Coverage/409ed4fb783142a397248831005bae74)](https://www.codacy.com/manual/Molnix888/obj-props-dynamic-setter/dashboard?utm_source=github.com&utm_medium=referral&utm_content=Molnix888/obj-props-dynamic-setter&utm_campaign=Badge_Coverage) [![Codacy Badge](https://api.codacy.com/project/badge/Grade/319a54202e8945e287b52b5ad2b8b9e0)](https://app.codacy.com/manual/Molnix888/obj-props-dynamic-setter?utm_source=github.com&utm_medium=referral&utm_content=Molnix888/obj-props-dynamic-setter&utm_campaign=Badge_Grade_Settings)
+
 A small library providing object extensions dedicated to getting properties information and manipulating their values via property names known only at runtime. Uses reflection under the hood. Might be particularly useful for playing with models properties in data-driven testing but not limited to it. Supports nested properties access and access to non-public properties.
 
 ## Use
