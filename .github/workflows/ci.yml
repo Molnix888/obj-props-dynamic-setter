@@ -29,7 +29,7 @@ jobs:
       - name: Unit Tests
         run: dotnet test **/ObjPropsDynamicSetter.Test.sln --no-restore --verbosity normal --collect:"XPlat Code Coverage"
       - name: Mutation Tests
-        run: dotnet stryker -s **/ObjPropsDynamicSetter.sln -ca perTestInIsolation --reporters "['dashboard']" --dashboard-api-key ${{ secrets.STRYKER_API_KEY }} --dashboard-project "github.com/Molnix888/obj-props-dynamic-setter" --dashboard-version ${{ github.ref }}
+        run: dotnet stryker -tp "['**/*.Test.Unit.csproj']" -ca perTestInIsolation -r "['dashboard']" --dashboard-api-key ${{ secrets.STRYKER_API_KEY }} --dashboard-project "github.com/Molnix888/obj-props-dynamic-setter" --dashboard-version ${{ github.ref }}
       - name: Move Code Coverage Report
         run: find -name coverage.cobertura.xml -exec mv {} ${{ github.workspace }} \;
       - name: Run codacy-coverage-reporter
