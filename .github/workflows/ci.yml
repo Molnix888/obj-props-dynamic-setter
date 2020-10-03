@@ -16,6 +16,8 @@ jobs:
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: '3.1.x'
+      - name: Install Stryker
+        run: dotnet tool install -g dotnet-stryker
       - name: Lint Code Base
         uses: github/super-linter@v3
         env:
@@ -26,6 +28,8 @@ jobs:
         run: dotnet build **/ObjPropsDynamicSetter.sln -c Release --no-restore
       - name: Unit Tests
         run: dotnet test **/ObjPropsDynamicSetter.Test.sln --no-restore --verbosity normal --collect:"XPlat Code Coverage"
+      - name: Mutation Tests
+        run: dotnet stryker -tp "['src/test/ObjPropsDynamicSetter.Test.Unit/ObjPropsDynamicSetter.Test.Unit.csproj']" -ca perTestInIsolation -r "['dashboard']" --dashboard-api-key ${{ secrets.STRYKER_API_KEY }} --dashboard-project "github.com/Molnix888/obj-props-dynamic-setter" --dashboard-version ${{ github.ref }}
       - name: Move Code Coverage Report
         run: find -name coverage.cobertura.xml -exec mv {} ${{ github.workspace }} \;
       - name: Run codacy-coverage-reporter

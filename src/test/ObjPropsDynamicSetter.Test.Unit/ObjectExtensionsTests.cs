@@ -21,37 +21,27 @@ namespace ObjPropsDynamicSetter.Test.Unit
 
         [Test]
         [TestCaseSource(nameof(GetValidDataForGetPropertyInfo))]
-        public void GetPropertyInfoSuccess(object obj, string propertyName, Type type, bool includeNonPublic) =>
-            Assert.That(obj.GetPropertyInfo(propertyName, includeNonPublic).PropertyType, Is.EqualTo(type));
+        public void GetPropertyInfoSuccess(object obj, string propertyName, Type type, bool includeNonPublic) => Assert.That(obj.GetPropertyInfo(propertyName, includeNonPublic).PropertyType, Is.EqualTo(type));
 
         [Test]
         [TestCaseSource(nameof(GetRequiredDataInvalidCommon))]
-        public void GetPropertyInfoThrowsException(object obj, string propertyName, ExactTypeConstraint throwsException) =>
-            Assert.That(() => obj.GetPropertyInfo(propertyName), throwsException);
+        public void GetPropertyInfoThrowsException(object obj, string propertyName, ExactTypeConstraint throwsException, string exceptionMessage) =>
+            Assert.That(() => obj.GetPropertyInfo(propertyName), throwsException?.With.Message.EqualTo(exceptionMessage));
 
         [Test]
-        public void GetPropertyValueDefaultFlagsSuccess()
-        {
-            var obj = GetTestStruct();
-            Assert.That(obj.GetPropertyValue<NestedTestClass>("NestedTestClass"), Is.EqualTo(new NestedTestClass()));
-        }
+        public void GetPropertyValueDefaultFlagsSuccess() => Assert.That(GetTestStruct().GetPropertyValue<NestedTestClass>("NestedTestClass"), Is.EqualTo(new NestedTestClass()));
 
         [Test]
         [TestCaseSource(nameof(GetValidDataForGetValue))]
-        public void GetPropertyValueSuccess(object obj, string propertyName, object value, bool includeNonPublic) =>
-            Assert.That(obj.GetPropertyValue<object>(propertyName, includeNonPublic), Is.EqualTo(value));
+        public void GetPropertyValueSuccess(object obj, string propertyName, object value, bool includeNonPublic) => Assert.That(obj.GetPropertyValue<object>(propertyName, includeNonPublic), Is.EqualTo(value));
 
         [Test]
         [TestCaseSource(nameof(GetRequiredDataInvalidCommon))]
-        public void GetPropertyValueThrowsException(object obj, string propertyName, ExactTypeConstraint throwsException) =>
-            Assert.That(() => obj.GetPropertyValue<object>(propertyName), throwsException);
+        public void GetPropertyValueThrowsException(object obj, string propertyName, ExactTypeConstraint throwsException, string exceptionMessage) =>
+            Assert.That(() => obj.GetPropertyValue<object>(propertyName), throwsException?.With.Message.EqualTo(exceptionMessage));
 
         [Test]
-        public void GetPropertyValueThrowsInvalidCastException()
-        {
-            var obj = new TestClass();
-            Assert.That(() => obj.GetPropertyValue<TestStruct>("CharValue"), Throws.TypeOf<InvalidCastException>());
-        }
+        public void GetPropertyValueThrowsInvalidCastException() => Assert.That(() => new TestClass().GetPropertyValue<TestStruct>("CharValue"), Throws.TypeOf<InvalidCastException>());
 
         [Test]
         [TestCaseSource(nameof(GetValidTestClassDataForSetValue))]
@@ -74,10 +64,10 @@ namespace ObjPropsDynamicSetter.Test.Unit
         [Test]
         [TestCaseSource(nameof(GetRequiredDataInvalidCommon))]
         [TestCaseSource(nameof(GetRequiredDataInvalidForSetValue))]
-        public void SetPropertyValueThrowsException(object obj, string propertyName, ExactTypeConstraint throwsException)
+        public void SetPropertyValueThrowsException(object obj, string propertyName, ExactTypeConstraint throwsException, string exceptionMessage)
         {
             const int value = 1000;
-            Assert.That(() => obj.SetPropertyValue<object>(propertyName, value), throwsException);
+            Assert.That(() => obj.SetPropertyValue<object>(propertyName, value), throwsException?.With.Message.EqualTo(exceptionMessage));
         }
 
         private static IEnumerable<object[]> GetValidDataForGetPropertyInfo()
@@ -190,25 +180,27 @@ namespace ObjPropsDynamicSetter.Test.Unit
 
         private static IEnumerable<object[]> GetRequiredDataInvalidCommon()
         {
-            yield return new object[] { null, "test", Throws.ArgumentNullException };
-            yield return new object[] { new TestClass(), null, Throws.ArgumentException };
-            yield return new object[] { new TestClass(), string.Empty, Throws.ArgumentException };
-            yield return new object[] { new TestClass(), " ", Throws.ArgumentException };
-            yield return new object[] { new TestClass(), "Absent", Throws.ArgumentException };
-            yield return new object[] { new TestClass(), "ObjectField", Throws.ArgumentException };
-            yield return new object[] { new TestClass(), "TestEvent", Throws.ArgumentException };
-            yield return new object[] { new TestClass(), "TestMethod", Throws.ArgumentException };
-            yield return new object[] { new TestClass(), "InternalShortValue", Throws.ArgumentException };
-            yield return new object[] { new TestClass(), "TestStruct.NestedTestClass.PrivateIntValue", Throws.ArgumentException };
-            yield return new object[] { new TestClass(), "ProtectedNestedTestClass", Throws.ArgumentException };
-            yield return new object[] { new TestClass(), "ProtectedNestedTestClass.PrivateIntValue", Throws.ArgumentException };
-            yield return new object[] { GetTestStruct(), "Missing", Throws.ArgumentException };
+            const string nameExceptionMessage = "Property name cannot be null or empty.";
+
+            yield return new object[] { null, "test", Throws.ArgumentNullException, "Value cannot be null. (Parameter 'obj')" };
+            yield return new object[] { new TestClass(), null, Throws.ArgumentException, nameExceptionMessage };
+            yield return new object[] { new TestClass(), string.Empty, Throws.ArgumentException, nameExceptionMessage };
+            yield return new object[] { new TestClass(), " ", Throws.ArgumentException, "Property   not found in ObjPropsDynamicSetter.Test.Unit.Models.TestClass." };
+            yield return new object[] { new TestClass(), "Absent", Throws.ArgumentException, "Property Absent not found in ObjPropsDynamicSetter.Test.Unit.Models.TestClass." };
+            yield return new object[] { new TestClass(), "ObjectField", Throws.ArgumentException, "Property ObjectField not found in ObjPropsDynamicSetter.Test.Unit.Models.TestClass." };
+            yield return new object[] { new TestClass(), "TestEvent", Throws.ArgumentException, "Property TestEvent not found in ObjPropsDynamicSetter.Test.Unit.Models.TestClass." };
+            yield return new object[] { new TestClass(), "TestMethod", Throws.ArgumentException, "Property TestMethod not found in ObjPropsDynamicSetter.Test.Unit.Models.TestClass." };
+            yield return new object[] { new TestClass(), "InternalShortValue", Throws.ArgumentException, "Property InternalShortValue not found in ObjPropsDynamicSetter.Test.Unit.Models.TestClass." };
+            yield return new object[] { new TestClass(), "TestStruct.NestedTestClass.PrivateIntValue", Throws.ArgumentException, "Property PrivateIntValue not found in ObjPropsDynamicSetter.Test.Unit.Models.NestedTestClass." };
+            yield return new object[] { new TestClass(), "ProtectedNestedTestClass", Throws.ArgumentException, "Property ProtectedNestedTestClass not found in ObjPropsDynamicSetter.Test.Unit.Models.TestClass." };
+            yield return new object[] { new TestClass(), "ProtectedNestedTestClass.PrivateIntValue", Throws.ArgumentException, "Property ProtectedNestedTestClass not found in ObjPropsDynamicSetter.Test.Unit.Models.TestClass." };
+            yield return new object[] { GetTestStruct(), "Missing", Throws.ArgumentException, "Property Missing not found in ObjPropsDynamicSetter.Test.Unit.Models.TestStruct." };
         }
 
         private static IEnumerable<object[]> GetRequiredDataInvalidForSetValue()
         {
-            yield return new object[] { GetTestStruct(), "NestedTestClass", Throws.TypeOf<InvalidCastException>() };
-            yield return new object[] { new TestClass(), "ByteValue", Throws.TypeOf<OverflowException>() };
+            yield return new object[] { GetTestStruct(), "NestedTestClass", Throws.TypeOf<InvalidCastException>(), "Invalid cast from 'System.Int32' to 'ObjPropsDynamicSetter.Test.Unit.Models.NestedTestClass'." };
+            yield return new object[] { new TestClass(), "ByteValue", Throws.TypeOf<OverflowException>(), "Value was either too large or too small for an unsigned byte." };
         }
 
         private static TestStruct GetTestStruct() => new TestStruct

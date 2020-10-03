@@ -11,8 +11,6 @@ namespace ObjPropsDynamicSetter
     /// </summary>
     public static class ObjectExtensions
     {
-        private const char Delimiter = '.';
-
         /// <summary>
         /// Gets the property info via its name.
         /// </summary>
@@ -162,7 +160,7 @@ namespace ObjPropsDynamicSetter
             return type.GetProperty(name, flags) ?? throw new ArgumentException($"Property {name} not found in {type}.");
         }
 
-        private static ICollection<string> GetPropertyPathItems(string path) => path.Split(Delimiter, StringSplitOptions.RemoveEmptyEntries).ToList();
+        private static ICollection<string> GetPropertyPathItems(string path) => path.Split('.', StringSplitOptions.RemoveEmptyEntries).ToList();
 
         private static void ValidateParameters(object obj, string name)
         {
