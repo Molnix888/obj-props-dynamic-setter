@@ -1,22 +1,25 @@
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using NUnit.Framework;
 using NUnit.Framework.Constraints;
+using ObjPropsDynamicSetter.Test.Unit.Extensions;
+using ObjPropsDynamicSetter.Test.Unit.ModelBuilders;
 using ObjPropsDynamicSetter.Test.Unit.Models;
+using ObjPropsDynamicSetter.Test.Unit.Utils;
 
 namespace ObjPropsDynamicSetter.Test.Unit
 {
-    [TestFixture]
     [Parallelizable(ParallelScope.All)]
     public class ObjectExtensionsTests
     {
+        private static readonly TestClass TestClass = TestClassBuilder.Build();
+        private static readonly TestStruct TestStruct = TestStructBuilder.Build();
+
         [Test]
         public void GetPropertyInfoDefaultFlagsSuccess()
         {
             const string propertyName = "NestedTestStruct";
-            var obj = GetTestStruct();
-            Assert.That(obj.GetPropertyInfo(propertyName), Is.EqualTo(obj.GetType().GetProperty(propertyName)));
+            Assert.That(TestStruct.GetPropertyInfo(propertyName), Is.EqualTo(TestStruct.GetType().GetProperty(propertyName)));
         }
 
         [Test]
@@ -29,7 +32,7 @@ namespace ObjPropsDynamicSetter.Test.Unit
             Assert.That(() => obj.GetPropertyInfo(propertyName), throwsException?.With.Message.EqualTo(exceptionMessage));
 
         [Test]
-        public void GetPropertyValueDefaultFlagsSuccess() => Assert.That(GetTestStruct().GetPropertyValue<NestedTestClass>("NestedTestClass"), Is.EqualTo(new NestedTestClass()));
+        public void GetPropertyValueDefaultFlagsSuccess() => Assert.That(TestStruct.GetPropertyValue<NestedTestClass>("NestedTestClass"), Is.EqualTo(TestStruct.NestedTestClass));
 
         [Test]
         [TestCaseSource(nameof(GetValidDataForGetValue))]
@@ -41,13 +44,13 @@ namespace ObjPropsDynamicSetter.Test.Unit
             Assert.That(() => obj.GetPropertyValue<object>(propertyName), throwsException?.With.Message.EqualTo(exceptionMessage));
 
         [Test]
-        public void GetPropertyValueThrowsInvalidCastException() => Assert.That(() => new TestClass().GetPropertyValue<TestStruct>("CharValue"), Throws.TypeOf<InvalidCastException>());
+        public void GetPropertyValueThrowsInvalidCastException() => Assert.That(() => TestClass.GetPropertyValue<TestStruct>("CharValue"), Throws.TypeOf<InvalidCastException>());
 
         [Test]
         [TestCaseSource(nameof(GetValidTestClassDataForSetValue))]
         public void SetPropertyValueTestClassSuccess(string propertyName, object value, bool includeNonPublic)
         {
-            var obj = new TestClass();
+            var obj = TestClassBuilder.Build();
             _ = obj.SetPropertyValue<TestClass>(propertyName, value, includeNonPublic);
             Assert.That(obj.GetPropertyValue<object>(propertyName, includeNonPublic), Is.EqualTo(value));
         }
@@ -56,7 +59,7 @@ namespace ObjPropsDynamicSetter.Test.Unit
         [TestCaseSource(nameof(GetValidTestStructDataForSetValue))]
         public void SetPropertyValueTestStructDefaultFlagsSuccess(string propertyName, object value)
         {
-            var obj = GetTestStruct();
+            var obj = TestStructBuilder.Build();
             obj = obj.SetPropertyValue<TestStruct>(propertyName, value);
             Assert.That(obj.GetPropertyValue<object>(propertyName), Is.EqualTo(value));
         }
@@ -66,116 +69,118 @@ namespace ObjPropsDynamicSetter.Test.Unit
         [TestCaseSource(nameof(GetRequiredDataInvalidForSetValue))]
         public void SetPropertyValueThrowsException(object obj, string propertyName, ExactTypeConstraint throwsException, string exceptionMessage)
         {
-            const int value = 1000;
+            var value = RandomUtil.Randomizer.Next(256, int.MaxValue);
             Assert.That(() => obj.SetPropertyValue<object>(propertyName, value), throwsException?.With.Message.EqualTo(exceptionMessage));
         }
 
         private static IEnumerable<object[]> GetValidDataForGetPropertyInfo()
         {
-            yield return new object[] { new TestClass(), "ObjectValue", typeof(object), false };
-            yield return new object[] { new TestClass(), "BoolValue", typeof(bool), false };
-            yield return new object[] { new TestClass(), "ByteValue", typeof(byte), false };
-            yield return new object[] { new TestClass(), "SByteValue", typeof(sbyte), true };
-            yield return new object[] { new TestClass(), "CharValue", typeof(char), false };
-            yield return new object[] { new TestClass(), "StringValue", typeof(string), false };
-            yield return new object[] { new TestClass(), "UIntValue", typeof(uint), false };
-            yield return new object[] { new TestClass(), "LongValue", typeof(long), false };
-            yield return new object[] { new TestClass(), "ULongValue", typeof(ulong), false };
-            yield return new object[] { new TestClass(), "UShortValue", typeof(ushort), false };
-            yield return new object[] { new TestClass(), "DecimalValue", typeof(decimal), false };
-            yield return new object[] { new TestClass(), "DoubleValue", typeof(double), false };
-            yield return new object[] { new TestClass(), "FloatValue", typeof(float), false };
-            yield return new object[] { new TestClass(), "DynamicValue", typeof(object), false };
-            yield return new object[] { new TestClass(), "NullableIntValue", typeof(int?), false };
-            yield return new object[] { new TestClass(), "NullableDateTimeValue", typeof(DateTime?), true };
-            yield return new object[] { new TestClass(), "EnumValue", typeof(TestEnumeration), false };
-            yield return new object[] { new TestClass(), "TestStruct", typeof(TestStruct), false };
-            yield return new object[] { new TestClass(), "TestStruct.ByteValue", typeof(byte), false };
-            yield return new object[] { new TestClass(), "TestStruct.NestedTestClass", typeof(NestedTestClass), false };
-            yield return new object[] { new TestClass(), "TestStruct.NestedTestClass.NestedStringValue", typeof(string), false };
-            yield return new object[] { new TestClass(), "TestStruct.NestedTestClass.PrivateIntValue", typeof(int), true };
-            yield return new object[] { new TestClass(), "TestStruct.NestedTestStruct", typeof(NestedTestStruct), true };
-            yield return new object[] { new TestClass(), "TestStruct.NestedTestStruct.NestedCharValue", typeof(char), false };
-            yield return new object[] { new TestClass(), "ProtectedNestedTestClass.NestedStringValue", typeof(string), true };
-            yield return new object[] { new TestClass(), "IntCollectionValue", typeof(IEnumerable<int>), false };
-            yield return new object[] { new TestClass(), "StaticIntValue", typeof(int), false };
-            yield return new object[] { new TestClass(), "InternalShortValue", typeof(short), true };
-            yield return new object[] { GetTestStruct(), "NestedTestClass", typeof(NestedTestClass), false };
+            yield return new object[] { TestClass, "ReadOnlyBoolValue", typeof(bool), false };
+            yield return new object[] { TestClass, "ObjectValue", typeof(object), false };
+            yield return new object[] { TestClass, "BoolValue", typeof(bool), false };
+            yield return new object[] { TestClass, "ByteValue", typeof(byte), false };
+            yield return new object[] { TestClass, "SByteValue", typeof(sbyte), true };
+            yield return new object[] { TestClass, "CharValue", typeof(char), false };
+            yield return new object[] { TestClass, "StringValue", typeof(string), false };
+            yield return new object[] { TestClass, "UIntValue", typeof(uint), false };
+            yield return new object[] { TestClass, "LongValue", typeof(long), false };
+            yield return new object[] { TestClass, "ULongValue", typeof(ulong), false };
+            yield return new object[] { TestClass, "UShortValue", typeof(ushort), false };
+            yield return new object[] { TestClass, "DecimalValue", typeof(decimal), false };
+            yield return new object[] { TestClass, "DoubleValue", typeof(double), false };
+            yield return new object[] { TestClass, "FloatValue", typeof(float), false };
+            yield return new object[] { TestClass, "DynamicValue", typeof(object), false };
+            yield return new object[] { TestClass, "NullableIntValue", typeof(int?), false };
+            yield return new object[] { TestClass, "NullableDateTimeValue", typeof(DateTime?), true };
+            yield return new object[] { TestClass, "EnumValue", typeof(TestEnumeration), false };
+            yield return new object[] { TestClass, "TestStruct", typeof(TestStruct), false };
+            yield return new object[] { TestClass, "TestStruct.ByteValue", typeof(byte), false };
+            yield return new object[] { TestClass, "TestStruct.NestedTestClass", typeof(NestedTestClass), false };
+            yield return new object[] { TestClass, "TestStruct.NestedTestClass.NestedStringValue", typeof(string), false };
+            yield return new object[] { TestClass, "TestStruct.NestedTestClass.PrivateIntValue", typeof(int), true };
+            yield return new object[] { TestClass, "TestStruct.NestedTestStruct", typeof(NestedTestStruct), true };
+            yield return new object[] { TestClass, "TestStruct.NestedTestStruct.NestedCharValue", typeof(char), false };
+            yield return new object[] { TestClass, "ProtectedNestedTestClass.NestedStringValue", typeof(string), true };
+            yield return new object[] { TestClass, "IntCollectionValue", typeof(IEnumerable<int>), false };
+            yield return new object[] { TestClass, "StaticIntValue", typeof(int), false };
+            yield return new object[] { TestClass, "InternalShortValue", typeof(short), true };
+            yield return new object[] { TestStruct, "NestedTestClass", typeof(NestedTestClass), false };
         }
 
         private static IEnumerable<object[]> GetValidDataForGetValue()
         {
-            yield return new object[] { new TestClass(), "ObjectValue", true, false };
-            yield return new object[] { new TestClass(), "BoolValue", false, false };
-            yield return new object[] { new TestClass(), "ByteValue", 3, false };
-            yield return new object[] { new TestClass(), "SByteValue", -5, true };
-            yield return new object[] { new TestClass(), "CharValue", 'r', false };
-            yield return new object[] { new TestClass(), "StringValue", "something", false };
-            yield return new object[] { new TestClass(), "UIntValue", 6475457, false };
-            yield return new object[] { new TestClass(), "LongValue", -748978967867, false };
-            yield return new object[] { new TestClass(), "ULongValue", 573242342423, false };
-            yield return new object[] { new TestClass(), "UShortValue", 16534, false };
-            yield return new object[] { new TestClass(), "DecimalValue", 456.656544654644m, false };
-            yield return new object[] { new TestClass(), "DoubleValue", 3453453.345436575d, false };
-            yield return new object[] { new TestClass(), "FloatValue", 4355464.64f, false };
-            yield return new object[] { new TestClass(), "DynamicValue", "dynamic", false };
-            yield return new object[] { new TestClass(), "NullableIntValue", 347, false };
-            yield return new object[] { new TestClass(), "NullableDateTimeValue", DateTime.Parse("1886-11-03", CultureInfo.InvariantCulture), true };
-            yield return new object[] { new TestClass(), "EnumValue", TestEnumeration.First, false };
-            yield return new object[] { new TestClass(), "TestStruct", new TestStruct { IntValue = 27, ByteValue = 2, NestedTestClass = new NestedTestClass(), NestedTestStruct = new NestedTestStruct { NestedCharValue = 'k' } }, false };
-            yield return new object[] { new TestClass(), "TestStruct.ByteValue", 2, false };
-            yield return new object[] { new TestClass(), "TestStruct.NestedTestClass", new NestedTestClass(), false };
-            yield return new object[] { new TestClass(), "TestStruct.NestedTestClass.NestedStringValue", "foo", false };
-            yield return new object[] { new TestClass(), "TestStruct.NestedTestClass.PrivateIntValue", 7, true };
-            yield return new object[] { new TestClass(), "TestStruct.NestedTestStruct", new NestedTestStruct { NestedCharValue = 'k' }, true };
-            yield return new object[] { new TestClass(), "TestStruct.NestedTestStruct.NestedCharValue", 'k', false };
-            yield return new object[] { new TestClass(), "ProtectedNestedTestClass.NestedStringValue", "foo", true };
-            yield return new object[] { new TestClass(), "IntCollectionValue", new List<int> { 1, 5, 6 }, false };
-            yield return new object[] { new TestClass(), "StaticIntValue", 5, false };
-            yield return new object[] { new TestClass(), "InternalShortValue", -1654, true };
-            yield return new object[] { GetTestStruct(), "NestedTestStruct", new NestedTestStruct { NestedCharValue = 'c' }, false };
+            yield return new object[] { TestClass, "ReadOnlyBoolValue", TestClass.ReadOnlyBoolValue, false };
+            yield return new object[] { TestClass, "ObjectValue", TestClass.ObjectValue, false };
+            yield return new object[] { TestClass, "BoolValue", TestClass.BoolValue, false };
+            yield return new object[] { TestClass, "ByteValue", TestClass.ByteValue, false };
+            yield return new object[] { TestClass, "SByteValue", TestClass.SByteValue, true };
+            yield return new object[] { TestClass, "CharValue", TestClass.CharValue, false };
+            yield return new object[] { TestClass, "StringValue", TestClass.StringValue, false };
+            yield return new object[] { TestClass, "UIntValue", TestClass.UIntValue, false };
+            yield return new object[] { TestClass, "LongValue", TestClass.LongValue, false };
+            yield return new object[] { TestClass, "ULongValue", TestClass.ULongValue, false };
+            yield return new object[] { TestClass, "UShortValue", TestClass.UShortValue, false };
+            yield return new object[] { TestClass, "DecimalValue", TestClass.DecimalValue, false };
+            yield return new object[] { TestClass, "DoubleValue", TestClass.DoubleValue, false };
+            yield return new object[] { TestClass, "FloatValue", TestClass.FloatValue, false };
+            yield return new object[] { TestClass, "DynamicValue", TestClass.DynamicValue, false };
+            yield return new object[] { TestClass, "NullableIntValue", TestClass.NullableIntValue, false };
+            yield return new object[] { TestClass, "NullableDateTimeValue", TestClass.NullableDateTimeValue, true };
+            yield return new object[] { TestClass, "EnumValue", TestClass.EnumValue, false };
+            yield return new object[] { TestClass, "TestStruct", TestClass.TestStruct, false };
+            yield return new object[] { TestClass, "TestStruct.ByteValue", TestClass.TestStruct.ByteValue, false };
+            yield return new object[] { TestClass, "TestStruct.NestedTestClass", TestClass.TestStruct.NestedTestClass, false };
+            yield return new object[] { TestClass, "TestStruct.NestedTestClass.NestedStringValue", TestClass.TestStruct.NestedTestClass.NestedStringValue, false };
+            yield return new object[] { TestClass, "TestStruct.NestedTestClass.PrivateIntValue", 778567, true };
+            yield return new object[] { TestClass, "TestStruct.NestedTestStruct", TestClass.TestStruct.NestedTestStruct, true };
+            yield return new object[] { TestClass, "TestStruct.NestedTestStruct.NestedCharValue", TestClass.TestStruct.NestedTestStruct.NestedCharValue, false };
+            yield return new object[] { TestClass, "ProtectedNestedTestClass.NestedStringValue", "foo", true };
+            yield return new object[] { TestClass, "IntCollectionValue", TestClass.IntCollectionValue, false };
+            yield return new object[] { TestClass, "StaticIntValue", TestClass.StaticIntValue, false };
+            yield return new object[] { TestClass, "InternalShortValue", TestClass.InternalShortValue, true };
+            yield return new object[] { TestStruct, "NestedTestStruct", TestStruct.NestedTestStruct, false };
         }
 
         private static IEnumerable<object[]> GetValidTestClassDataForSetValue()
         {
             yield return new object[] { "ObjectValue", null, false };
-            yield return new object[] { "ObjectValue", 56, false };
-            yield return new object[] { "BoolValue", true, false };
-            yield return new object[] { "ByteValue", 24, false };
-            yield return new object[] { "SByteValue", 7, true };
-            yield return new object[] { "CharValue", 'U', false };
-            yield return new object[] { "StringValue", "test", false };
-            yield return new object[] { "UIntValue", 14, false };
-            yield return new object[] { "LongValue", 5786, false };
-            yield return new object[] { "ULongValue", 72424, false };
-            yield return new object[] { "UShortValue", 73, false };
-            yield return new object[] { "DecimalValue", 56.45632423m, false };
-            yield return new object[] { "DoubleValue", 82723.4563242d, false };
-            yield return new object[] { "FloatValue", 875.34f, false };
-            yield return new object[] { "DynamicValue", 56, false };
+            yield return new object[] { "ObjectValue", RandomUtil.Randomizer.Next(), false };
+            yield return new object[] { "BoolValue", RandomUtil.Randomizer.NextBool(), false };
+            yield return new object[] { "ByteValue", RandomUtil.Randomizer.NextByte(), false };
+            yield return new object[] { "SByteValue", RandomUtil.Randomizer.NextSByte(), true };
+            yield return new object[] { "CharValue", RandomUtil.Randomizer.NextChar(), false };
+            yield return new object[] { "StringValue", RandomUtil.Randomizer.GetString(), false };
+            yield return new object[] { "UIntValue", RandomUtil.Randomizer.NextUInt(), false };
+            yield return new object[] { "LongValue", RandomUtil.Randomizer.NextLong(), false };
+            yield return new object[] { "ULongValue", RandomUtil.Randomizer.NextULong(), false };
+            yield return new object[] { "UShortValue", RandomUtil.Randomizer.NextUShort(), false };
+            yield return new object[] { "DecimalValue", RandomUtil.Randomizer.NextDecimal(), false };
+            yield return new object[] { "DoubleValue", RandomUtil.Randomizer.NextDouble(), false };
+            yield return new object[] { "FloatValue", RandomUtil.Randomizer.NextFloat(), false };
+            yield return new object[] { "DynamicValue", RandomUtil.Randomizer.NextBool(), false };
             yield return new object[] { "NullableIntValue", null, false };
-            yield return new object[] { "NullableIntValue", 32, false };
+            yield return new object[] { "NullableIntValue", RandomUtil.Randomizer.Next(), false };
             yield return new object[] { "NullableDateTimeValue", null, true };
-            yield return new object[] { "NullableDateTimeValue", DateTime.Parse("1990-06-13", CultureInfo.InvariantCulture), false };
-            yield return new object[] { "EnumValue", TestEnumeration.Second, false };
-            yield return new object[] { "TestStruct", new TestStruct { IntValue = 12, ByteValue = 6, NestedTestClass = new NestedTestClass { NestedStringValue = "str" }, NestedTestStruct = new NestedTestStruct { NestedCharValue = 'l' } }, false };
-            yield return new object[] { "TestStruct.ByteValue", 5, false };
-            yield return new object[] { "TestStruct.NestedTestClass", new NestedTestClass { NestedStringValue = "internal string" }, false };
-            yield return new object[] { "TestStruct.NestedTestClass.NestedStringValue", "some string", false };
-            yield return new object[] { "TestStruct.NestedTestClass.PrivateIntValue", -78954, true };
-            yield return new object[] { "TestStruct.NestedTestStruct", new NestedTestStruct { NestedCharValue = '!' }, true };
-            yield return new object[] { "TestStruct.NestedTestStruct.NestedCharValue", ' ', false };
-            yield return new object[] { "ProtectedNestedTestClass.PrivateIntValue", 8347, true };
-            yield return new object[] { "IntCollectionValue", new[] { 9, 3 }, false };
-            yield return new object[] { "StaticIntValue", 13, false };
-            yield return new object[] { "InternalShortValue", 90, true };
+            yield return new object[] { "NullableDateTimeValue", DateTime.Now, false };
+            yield return new object[] { "EnumValue", RandomUtil.Randomizer.NextEnum<TestEnumeration>(), false };
+            yield return new object[] { "TestStruct", TestStructBuilder.Build(), false };
+            yield return new object[] { "TestStruct.ByteValue", RandomUtil.Randomizer.NextByte(), false };
+            yield return new object[] { "TestStruct.NestedTestClass", NestedTestClassBuilder.Build(), false };
+            yield return new object[] { "TestStruct.NestedTestClass.NestedStringValue", RandomUtil.Randomizer.GetString(), false };
+            yield return new object[] { "TestStruct.NestedTestClass.PrivateIntValue", RandomUtil.Randomizer.Next(), true };
+            yield return new object[] { "TestStruct.NestedTestStruct", NestedTestStructBuilder.Build(), true };
+            yield return new object[] { "TestStruct.NestedTestStruct.NestedCharValue", RandomUtil.Randomizer.NextChar(), false };
+            yield return new object[] { "ProtectedNestedTestClass.PrivateIntValue", RandomUtil.Randomizer.Next(), true };
+            yield return new object[] { "IntCollectionValue", new[] { RandomUtil.Randomizer.Next(), RandomUtil.Randomizer.Next() }, false };
+            yield return new object[] { "StaticIntValue", RandomUtil.Randomizer.Next(), false };
+            yield return new object[] { "InternalShortValue", RandomUtil.Randomizer.NextShort(), true };
         }
 
         private static IEnumerable<object[]> GetValidTestStructDataForSetValue()
         {
-            yield return new object[] { "IntValue", 63 };
-            yield return new object[] { "NestedTestClass", new NestedTestClass { NestedStringValue = "something" } };
-            yield return new object[] { "NestedTestStruct", new NestedTestStruct { NestedCharValue = '/' } };
+            yield return new object[] { "IntValue", RandomUtil.Randomizer.Next() };
+            yield return new object[] { "NestedTestClass", NestedTestClassBuilder.Build() };
+            yield return new object[] { "NestedTestStruct", NestedTestStructBuilder.Build() };
         }
 
         private static IEnumerable<object[]> GetRequiredDataInvalidCommon()
@@ -183,35 +188,25 @@ namespace ObjPropsDynamicSetter.Test.Unit
             const string nameExceptionMessage = "Property name cannot be null or empty.";
 
             yield return new object[] { null, "test", Throws.ArgumentNullException, "Value cannot be null. (Parameter 'obj')" };
-            yield return new object[] { new TestClass(), null, Throws.ArgumentException, nameExceptionMessage };
-            yield return new object[] { new TestClass(), string.Empty, Throws.ArgumentException, nameExceptionMessage };
-            yield return new object[] { new TestClass(), " ", Throws.ArgumentException, "Property   not found in ObjPropsDynamicSetter.Test.Unit.Models.TestClass." };
-            yield return new object[] { new TestClass(), "Absent", Throws.ArgumentException, "Property Absent not found in ObjPropsDynamicSetter.Test.Unit.Models.TestClass." };
-            yield return new object[] { new TestClass(), "ObjectField", Throws.ArgumentException, "Property ObjectField not found in ObjPropsDynamicSetter.Test.Unit.Models.TestClass." };
-            yield return new object[] { new TestClass(), "TestEvent", Throws.ArgumentException, "Property TestEvent not found in ObjPropsDynamicSetter.Test.Unit.Models.TestClass." };
-            yield return new object[] { new TestClass(), "TestMethod", Throws.ArgumentException, "Property TestMethod not found in ObjPropsDynamicSetter.Test.Unit.Models.TestClass." };
-            yield return new object[] { new TestClass(), "InternalShortValue", Throws.ArgumentException, "Property InternalShortValue not found in ObjPropsDynamicSetter.Test.Unit.Models.TestClass." };
-            yield return new object[] { new TestClass(), "TestStruct.NestedTestClass.PrivateIntValue", Throws.ArgumentException, "Property PrivateIntValue not found in ObjPropsDynamicSetter.Test.Unit.Models.NestedTestClass." };
-            yield return new object[] { new TestClass(), "ProtectedNestedTestClass", Throws.ArgumentException, "Property ProtectedNestedTestClass not found in ObjPropsDynamicSetter.Test.Unit.Models.TestClass." };
-            yield return new object[] { new TestClass(), "ProtectedNestedTestClass.PrivateIntValue", Throws.ArgumentException, "Property ProtectedNestedTestClass not found in ObjPropsDynamicSetter.Test.Unit.Models.TestClass." };
-            yield return new object[] { GetTestStruct(), "Missing", Throws.ArgumentException, "Property Missing not found in ObjPropsDynamicSetter.Test.Unit.Models.TestStruct." };
+            yield return new object[] { TestClass, null, Throws.ArgumentException, nameExceptionMessage };
+            yield return new object[] { TestClass, string.Empty, Throws.ArgumentException, nameExceptionMessage };
+            yield return new object[] { TestClass, " ", Throws.ArgumentException, "Property   not found in ObjPropsDynamicSetter.Test.Unit.Models.TestClass." };
+            yield return new object[] { TestClass, "Absent", Throws.ArgumentException, "Property Absent not found in ObjPropsDynamicSetter.Test.Unit.Models.TestClass." };
+            yield return new object[] { TestClass, "TestField", Throws.ArgumentException, "Property TestField not found in ObjPropsDynamicSetter.Test.Unit.Models.TestClass." };
+            yield return new object[] { TestClass, "TestEvent", Throws.ArgumentException, "Property TestEvent not found in ObjPropsDynamicSetter.Test.Unit.Models.TestClass." };
+            yield return new object[] { TestClass, "TestMethod", Throws.ArgumentException, "Property TestMethod not found in ObjPropsDynamicSetter.Test.Unit.Models.TestClass." };
+            yield return new object[] { TestClass, "InternalShortValue", Throws.ArgumentException, "Property InternalShortValue not found in ObjPropsDynamicSetter.Test.Unit.Models.TestClass." };
+            yield return new object[] { TestClass, "TestStruct.NestedTestClass.PrivateIntValue", Throws.ArgumentException, "Property PrivateIntValue not found in ObjPropsDynamicSetter.Test.Unit.Models.NestedTestClass." };
+            yield return new object[] { TestClass, "ProtectedNestedTestClass", Throws.ArgumentException, "Property ProtectedNestedTestClass not found in ObjPropsDynamicSetter.Test.Unit.Models.TestClass." };
+            yield return new object[] { TestClass, "ProtectedNestedTestClass.PrivateIntValue", Throws.ArgumentException, "Property ProtectedNestedTestClass not found in ObjPropsDynamicSetter.Test.Unit.Models.TestClass." };
+            yield return new object[] { TestStruct, "Missing", Throws.ArgumentException, "Property Missing not found in ObjPropsDynamicSetter.Test.Unit.Models.TestStruct." };
         }
 
         private static IEnumerable<object[]> GetRequiredDataInvalidForSetValue()
         {
-            yield return new object[] { GetTestStruct(), "NestedTestClass", Throws.TypeOf<InvalidCastException>(), "Invalid cast from 'System.Int32' to 'ObjPropsDynamicSetter.Test.Unit.Models.NestedTestClass'." };
-            yield return new object[] { new TestClass(), "ByteValue", Throws.TypeOf<OverflowException>(), "Value was either too large or too small for an unsigned byte." };
+            yield return new object[] { TestStruct, "NestedTestClass", Throws.TypeOf<InvalidCastException>(), "Invalid cast from 'System.Int32' to 'ObjPropsDynamicSetter.Test.Unit.Models.NestedTestClass'." };
+            yield return new object[] { TestClass, "ByteValue", Throws.TypeOf<OverflowException>(), "Value was either too large or too small for an unsigned byte." };
+            yield return new object[] { TestClass, "ReadOnlyBoolValue", Throws.ArgumentException, "Property set method not found." };
         }
-
-        private static TestStruct GetTestStruct() => new TestStruct
-        {
-            IntValue = 875,
-            ByteValue = 48,
-            NestedTestClass = new NestedTestClass(),
-            NestedTestStruct = new NestedTestStruct
-            {
-                NestedCharValue = 'c',
-            },
-        };
     }
 }

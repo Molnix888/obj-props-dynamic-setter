@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Globalization;
+using ObjPropsDynamicSetter.Test.Unit.Utils;
 
 namespace ObjPropsDynamicSetter.Test.Unit.Models
 {
@@ -9,7 +9,7 @@ namespace ObjPropsDynamicSetter.Test.Unit.Models
 #pragma warning disable CA1051 // Do not declare visible instance fields
 #pragma warning disable IDE1006 // Naming Styles
 #pragma warning disable SA1401 // Fields should be private
-        public object TestField = 1;
+        public object TestField;
 #pragma warning restore SA1401 // Fields should be private
 #pragma warning restore IDE1006 // Naming Styles
 #pragma warning restore CA1051 // Do not declare visible instance fields
@@ -20,64 +20,57 @@ namespace ObjPropsDynamicSetter.Test.Unit.Models
 #pragma warning restore CS0067 // Events should be used
 #pragma warning restore S3264 // Events should be invoked
 
-        public static int StaticIntValue { get; set; } = 5;
+        public static int StaticIntValue { get; set; } = RandomUtil.Randomizer.Next();
 
-        public object ObjectValue { get; set; } = true;
+        public bool ReadOnlyBoolValue { get; } = RandomUtil.Randomizer.NextBool();
+
+        public object ObjectValue { get; set; }
 
         public bool BoolValue { get; set; }
 
-        public byte ByteValue { get; set; } = 3;
+        public byte ByteValue { get; set; }
 
-        public sbyte SByteValue { get; set; } = -5;
+        public sbyte SByteValue { get; set; }
 
-        public char CharValue { get; set; } = 'r';
+        public char CharValue { get; set; }
 
-        public string StringValue { get; set; } = "something";
+        public string StringValue { get; set; }
 
-        public uint UIntValue { get; set; } = 6475457;
+        public uint UIntValue { get; set; }
 
-        public long LongValue { get; set; } = -748978967867;
+        public long LongValue { get; set; }
 
-        public ulong ULongValue { get; set; } = 573242342423;
+        public ulong ULongValue { get; set; }
 
-        public ushort UShortValue { get; set; } = 16534;
+        public ushort UShortValue { get; set; }
 
-        public decimal DecimalValue { get; set; } = 456.656544654644m;
+        public decimal DecimalValue { get; set; }
 
-        public double DoubleValue { get; set; } = 3453453.345436575d;
+        public double DoubleValue { get; set; }
 
-        public float FloatValue { get; set; } = 4355464.64f;
+        public float FloatValue { get; set; }
 
-        public dynamic DynamicValue { get; set; } = "dynamic";
+        public dynamic DynamicValue { get; set; }
 
-        public int? NullableIntValue { get; set; } = 347;
+        public int? NullableIntValue { get; set; }
 
-        public DateTime? NullableDateTimeValue { get; set; } = DateTime.Parse("1886-11-03", CultureInfo.InvariantCulture);
+        public DateTime? NullableDateTimeValue { get; set; }
 
-        public TestEnumeration EnumValue { get; set; } = TestEnumeration.First;
+        public TestEnumeration EnumValue { get; set; }
 
-        public TestStruct TestStruct { get; set; } = new TestStruct
-        {
-            IntValue = 27,
-            ByteValue = 2,
-            NestedTestClass = new NestedTestClass(),
-            NestedTestStruct = new NestedTestStruct
-            {
-                NestedCharValue = 'k',
-            },
-        };
+        public TestStruct TestStruct { get; set; }
 
-        public IEnumerable<int> IntCollectionValue { get; set; } = new List<int> { 1, 5, 6 };
+        public IEnumerable<int> IntCollectionValue { get; set; }
 
-        internal short InternalShortValue { get; set; } = -1654;
+        internal short InternalShortValue { get; set; }
 
-        protected static NestedTestClass ProtectedNestedTestClass { get; set; } = new NestedTestClass();
+        protected static NestedTestClass ProtectedNestedTestClass { get; set; } = new NestedTestClass { NestedStringValue = "foo" };
 
 #pragma warning disable CA1822 // Mark members as static
         public void TestMethod()
 #pragma warning restore CA1822 // Mark members as static
         {
-            // Intentionally empty
+            // Empty
         }
     }
 }
