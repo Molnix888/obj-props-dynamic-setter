@@ -6,14 +6,10 @@ using System.Reflection;
 
 namespace ObjPropsDynamicSetter
 {
-    /// <summary>
-    /// Provides extension methods to access object properties via their names.
-    /// </summary>
+    /// <summary>Provides extension methods to access object properties via their names.</summary>
     public static class ObjectExtensions
     {
-        /// <summary>
-        /// Gets the property info via its name.
-        /// </summary>
+        /// <summary>Gets public property info via its name.</summary>
         /// <param name="obj">Object instance.</param>
         /// <param name="name">Property name.</param>
         /// <returns>Property information.</returns>
@@ -21,9 +17,7 @@ namespace ObjPropsDynamicSetter
         /// <exception cref="ArgumentException">Property is not found in object or property name is null or empty.</exception>
         public static PropertyInfo GetPropertyInfo(this object obj, string name) => obj.GetPropertyInfo(name, false);
 
-        /// <summary>
-        /// Gets the property info via its name.
-        /// </summary>
+        /// <summary>Gets property info via its name.</summary>
         /// <param name="obj">Object instance.</param>
         /// <param name="name">Property name.</param>
         /// <param name="includeNonPublic">Indicates whether to include non-public properties.</param>
@@ -36,9 +30,7 @@ namespace ObjPropsDynamicSetter
             return obj.GetPropertyDetails(GetPropertyPathItems(name), includeNonPublic).PropertyInfo;
         }
 
-        /// <summary>
-        /// Gets the property value via its name.
-        /// </summary>
+        /// <summary>Gets public property value via its name.</summary>
         /// <typeparam name="T">Property type.</typeparam>
         /// <param name="obj">Object instance.</param>
         /// <param name="name">Property name.</param>
@@ -48,9 +40,7 @@ namespace ObjPropsDynamicSetter
         /// <exception cref="InvalidCastException">Property value cannot be casted to expected return type.</exception>
         public static T GetPropertyValue<T>(this object obj, string name) => obj.GetPropertyValue<T>(name, false);
 
-        /// <summary>
-        /// Gets the property value via its name.
-        /// </summary>
+        /// <summary>Gets property value via its name.</summary>
         /// <typeparam name="T">Property type.</typeparam>
         /// <param name="obj">Object instance.</param>
         /// <param name="name">Property name.</param>
@@ -65,9 +55,7 @@ namespace ObjPropsDynamicSetter
             return (T)obj.GetPropertyDetails(GetPropertyPathItems(name), includeNonPublic).Value;
         }
 
-        /// <summary>
-        /// Sets the property value via its name.
-        /// </summary>
+        /// <summary>Sets public property value via its name.</summary>
         /// <typeparam name="T">Object type.</typeparam>
         /// <param name="obj">Object instance.</param>
         /// <param name="name">Property name.</param>
@@ -76,12 +64,10 @@ namespace ObjPropsDynamicSetter
         /// <exception cref="ArgumentNullException">Object is null.</exception>
         /// <exception cref="ArgumentException">Property is not found in object or property name is null or empty.</exception>
         /// <exception cref="InvalidCastException">Property value cannot be casted to expected return type.</exception>
-        /// <exception cref="OverflowException">Number is out of the range of conversionType.</exception>
+        /// <exception cref="OverflowException">Number is out of range of conversionType.</exception>
         public static T SetPropertyValue<T>(this object obj, string name, object value) => obj.SetPropertyValue<T>(name, value, false);
 
-        /// <summary>
-        /// Sets the property value via its name.
-        /// </summary>
+        /// <summary>Sets property value via its name.</summary>
         /// <typeparam name="T">Object type.</typeparam>
         /// <param name="obj">Object instance.</param>
         /// <param name="name">Property name.</param>
@@ -91,7 +77,7 @@ namespace ObjPropsDynamicSetter
         /// <exception cref="ArgumentNullException">Object is null.</exception>
         /// <exception cref="ArgumentException">Property is not found in object or property name is null or empty.</exception>
         /// <exception cref="InvalidCastException">Property value cannot be casted to expected return type.</exception>
-        /// <exception cref="OverflowException">Number is out of the range of conversionType.</exception>
+        /// <exception cref="OverflowException">Number is out of range of conversionType.</exception>
         public static T SetPropertyValue<T>(this object obj, string name, object value, bool includeNonPublic)
         {
             ValidateParameters(obj, name);
@@ -100,7 +86,7 @@ namespace ObjPropsDynamicSetter
 
         private static (object Value, PropertyInfo PropertyInfo) GetPropertyDetails(this object obj, ICollection<string> propertyPathItems, bool includeNonPublic)
         {
-            var (_, cutPropertyPathItems, propertyInfo) = GetFirstPropertyDetails(obj, propertyPathItems, includeNonPublic);
+            var (_, cutPropertyPathItems, propertyInfo) = obj.GetFirstPropertyDetails(propertyPathItems, includeNonPublic);
 
             if (cutPropertyPathItems.Any())
             {
@@ -113,7 +99,7 @@ namespace ObjPropsDynamicSetter
 
         private static object SetPropertyValue(this object obj, ICollection<string> propertyPathItems, object value, bool includeNonPublic)
         {
-            var (propertyName, cutPropertyPathItems, propertyInfo) = GetFirstPropertyDetails(obj, propertyPathItems, includeNonPublic);
+            var (propertyName, cutPropertyPathItems, propertyInfo) = obj.GetFirstPropertyDetails(propertyPathItems, includeNonPublic);
 
             if (cutPropertyPathItems.Any())
             {
@@ -138,7 +124,7 @@ namespace ObjPropsDynamicSetter
             propertyInfo.SetValue(obj, value);
         }
 
-        private static (string Name, ICollection<string> PathItems, PropertyInfo Info) GetFirstPropertyDetails(object obj, ICollection<string> pathItems, bool includeNonPublic)
+        private static (string Name, ICollection<string> PathItems, PropertyInfo Info) GetFirstPropertyDetails(this object obj, ICollection<string> pathItems, bool includeNonPublic)
         {
             var name = pathItems.First();
             _ = pathItems.Remove(name);
