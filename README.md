@@ -1,6 +1,9 @@
 # ObjPropsDynamicSetter
 
-![CI](https://github.com/Molnix888/obj-props-dynamic-setter/workflows/CI/badge.svg) [![Codacy Badge](https://app.codacy.com/project/badge/Coverage/409ed4fb783142a397248831005bae74)](https://www.codacy.com/gh/Molnix888/obj-props-dynamic-setter) [![Codacy Badge](https://app.codacy.com/project/badge/Grade/409ed4fb783142a397248831005bae74)](https://www.codacy.com/gh/Molnix888/obj-props-dynamic-setter) [![Mutation testing badge](https://img.shields.io/endpoint?style=flat&url=https%3A%2F%2Fbadge-api.stryker-mutator.io%2Fgithub.com%2FMolnix888%2Fobj-props-dynamic-setter%2Fmaster)](https://dashboard.stryker-mutator.io/reports/github.com/Molnix888/obj-props-dynamic-setter/master)
+![CI](https://github.com/Molnix888/obj-props-dynamic-setter/workflows/CI/badge.svg)
+[![Coverage](https://app.codacy.com/project/badge/Coverage/409ed4fb783142a397248831005bae74)](https://www.codacy.com/gh/Molnix888/obj-props-dynamic-setter)
+[![Code Quality](https://app.codacy.com/project/badge/Grade/409ed4fb783142a397248831005bae74)](https://www.codacy.com/gh/Molnix888/obj-props-dynamic-setter)
+[![Mutation score](https://img.shields.io/endpoint?style=flat&url=https%3A%2F%2Fbadge-api.stryker-mutator.io%2Fgithub.com%2FMolnix888%2Fobj-props-dynamic-setter%2Fmaster)](https://dashboard.stryker-mutator.io/reports/github.com/Molnix888/obj-props-dynamic-setter/master)
 
 A small library providing object extensions dedicated to getting properties information and manipulating their values via property names known only at runtime. Uses reflection under the hood. Might be particularly useful for playing with models properties in data-driven testing but not limited to it. Supports nested properties access and access to non-public properties.
 
