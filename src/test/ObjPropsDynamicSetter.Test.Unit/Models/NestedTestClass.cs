@@ -4,9 +4,9 @@ namespace ObjPropsDynamicSetter.Test.Unit.Models
 {
     public sealed class NestedTestClass : IEquatable<NestedTestClass>
     {
-        public string NestedStringValue { get; set; } = "foo";
+        public string NestedStringValue { get; set; }
 
-        private int PrivateIntValue { get; set; } = 7;
+        private int PrivateIntValue { get; set; } = 778567;
 
         public bool Equals(NestedTestClass other) => NestedStringValue == other?.NestedStringValue && PrivateIntValue == other?.PrivateIntValue;
 
