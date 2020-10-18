@@ -11,19 +11,19 @@ Some simple examples of usage:
 ```csharp
 var model = new Model();
 var propertyName = "SomeProperty";
-var value = 1000;
 
 // Retrieval of PropertyInfo attribute of the property
 var propertyInfo = model.GetPropertyInfo(propertyName);
 
 // Retrieval of property value
-var value = model.GetPropertyValue<object>(propertyName);
+var returnedValue = model.GetPropertyValue<object>(propertyName);
 
 // Setting a new value to a property
+var value = 1000;
 model.SetPropertyValue<Model>(propertyName, value);
 ```
 
-By default only public properties are accessible. In order to access them, optional parameter 'includeNonPublic' should be set as 'true':
+By default only public properties are accessible. In order to access non-public ones, optional parameter 'includeNonPublic' should be set as 'true':
 
 ```csharp
 model.SetPropertyValue<Model>(propertyName, value, true);
@@ -42,7 +42,7 @@ public class NestedModel
     public int IntProperty { get; set; }
 }
 
-//Internal initialization logic skipped for simplicity
+// Internal initialization logic skipped for simplicity
 var model = new Model();
 var propertyName = "NestedModel.IntProperty";
 
@@ -51,4 +51,4 @@ var value = model.GetPropertyValue<int>(propertyName);
 
 ## Download
 
-The latest release of ObjPropsDynamicSetter is available on [NuGet](https://www.nuget.org/packages/ObjPropsDynamicSetter/) or can be downloaded from [GitHub](https://github.com/Molnix888/obj-props-dynamic-setter/packages).
+The latest release is available on [NuGet](https://www.nuget.org/packages/ObjPropsDynamicSetter/) and on [GitHub](https://github.com/Molnix888/obj-props-dynamic-setter/packages).
