@@ -65,8 +65,3 @@ jobs:
         run: dotnet nuget push nuget/*.nupkg -k ${{ secrets.NUGET_API_KEY }} -s https://api.nuget.org/v3/index.json -n true --skip-duplicate
       - name: Publish to GitHub Packages
         run: dotnet nuget push nuget/*.nupkg -s "github" -n true --skip-duplicate
-      - name: Tag Commit
-        uses: tvdias/github-tagger@v0.0.2
-        with:
-          repo-token: "${{ secrets.GITHUB_TOKEN }}"
-          tag: "${{ steps.gitversion.outputs.semVer }}"
