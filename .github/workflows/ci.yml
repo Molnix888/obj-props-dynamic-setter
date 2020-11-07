@@ -19,7 +19,7 @@ jobs:
       - name: Install Stryker
         run: dotnet tool install -g dotnet-stryker
       - name: Lint Code Base
-        uses: github/super-linter@latest
+        uses: docker://ghcr.io/github/super-linter:latest
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Install dependencies
