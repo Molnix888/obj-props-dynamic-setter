@@ -107,21 +107,21 @@ namespace ObjPropsDynamicSetter
                 _ = innerObject.SetPropertyValue(cutPropertyPathItems, value, includeNonPublic);
 
                 propertyInfo = obj.GetObjectPropertyInfo(propertyName, includeNonPublic);
-                obj.SetPropertyValue(propertyInfo, innerObject);
+                SetPropertyValue(obj, propertyInfo, innerObject);
             }
             else
             {
-                obj.SetPropertyValue(propertyInfo, value);
+                SetPropertyValue(obj, propertyInfo, value);
             }
 
             return obj;
-        }
 
-        private static void SetPropertyValue(this object obj, PropertyInfo propertyInfo, object value)
-        {
-            var propertyType = Nullable.GetUnderlyingType(propertyInfo.PropertyType) ?? propertyInfo.PropertyType;
-            value = value is IConvertible ? Convert.ChangeType(value, propertyType, CultureInfo.InvariantCulture) : value;
-            propertyInfo.SetValue(obj, value);
+            static void SetPropertyValue(object obj, PropertyInfo propertyInfo, object value)
+            {
+                var propertyType = Nullable.GetUnderlyingType(propertyInfo.PropertyType) ?? propertyInfo.PropertyType;
+                value = value is IConvertible ? Convert.ChangeType(value, propertyType, CultureInfo.InvariantCulture) : value;
+                propertyInfo.SetValue(obj, value);
+            }
         }
 
         private static (string Name, ICollection<string> PathItems, PropertyInfo Info) GetFirstPropertyDetails(this object obj, ICollection<string> pathItems, bool includeNonPublic)
