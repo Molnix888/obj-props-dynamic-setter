@@ -19,7 +19,7 @@ jobs:
       - name: Install Stryker
         run: dotnet tool install -g dotnet-stryker
       - name: Lint Code Base
-        uses: github/super-linter@v3
+        uses: github/super-linter@master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Install dependencies
@@ -51,12 +51,12 @@ jobs:
         with:
           dotnet-version: '3.1.x'
       - name: Install GitVersion
-        uses: gittools/actions/gitversion/setup@v0.9.4
+        uses: gittools/actions/gitversion/setup@v0.9.5
         with:
           versionSpec: '5.2.x'
       - name: Use GitVersion
         id: gitversion
-        uses: gittools/actions/gitversion/execute@v0.9.4
+        uses: gittools/actions/gitversion/execute@v0.9.5
       - name: Add GitHub Packages Source
         run: dotnet nuget add source https://nuget.pkg.github.com/Molnix888/index.json -n github -u Molnix888 -p ${{ secrets.GITHUB_TOKEN }} --store-password-in-clear-text
       - name: Pack
