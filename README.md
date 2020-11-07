@@ -9,24 +9,24 @@ A small library providing object extensions dedicated to getting properties info
 
 ## Use
 
-Some simple examples of usage:
+Simple usage examples:
 
 ```csharp
 var model = new Model();
-var propertyName = "SomeProperty";
+var propertyName = "Foo";
 
-// Retrieval of PropertyInfo attribute of the property
+// PropertyInfo retrieval from a property
 var propertyInfo = model.GetPropertyInfo(propertyName);
 
-// Retrieval of property value
-var returnedValue = model.GetPropertyValue<object>(propertyName);
+// Property value retrieval
+var propertyValue = model.GetPropertyValue<object>(propertyName);
 
-// Setting a new value to a property
+// Setting new value to a property
 var value = 1000;
 model.SetPropertyValue<Model>(propertyName, value);
 ```
 
-By default only public properties are accessible. In order to access non-public ones, optional parameter 'includeNonPublic' should be set as 'true':
+Only public properties are accessible by default. In order to access non-public ones, optional parameter 'includeNonPublic' should be set to 'true':
 
 ```csharp
 model.SetPropertyValue<Model>(propertyName, value, true);
@@ -42,12 +42,12 @@ public class Model
 
 public class NestedModel
 {
-    public int IntProperty { get; set; }
+    public int Bar { get; set; }
 }
 
 // Internal initialization logic skipped for simplicity
 var model = new Model();
-var propertyName = "NestedModel.IntProperty";
+var propertyName = "NestedModel.Bar";
 
 var value = model.GetPropertyValue<int>(propertyName);
 ```
