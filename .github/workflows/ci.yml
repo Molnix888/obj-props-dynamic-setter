@@ -15,7 +15,7 @@ jobs:
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: '5.x'
+          dotnet-version: '5.0.101'
       - name: Install Stryker
         run: dotnet tool install -g dotnet-stryker
       - name: Lint Code Base
@@ -49,7 +49,7 @@ jobs:
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: '5.x'
+          dotnet-version: '5.0.101'
       - name: Install GitVersion
         uses: gittools/actions/gitversion/setup@v0.9.7
         with:
