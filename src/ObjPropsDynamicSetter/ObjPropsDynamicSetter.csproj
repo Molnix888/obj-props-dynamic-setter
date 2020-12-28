@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <TargetFramework>netstandard2.1</TargetFramework>
+    <TargetFrameworks>netstandard2.1;net5.0</TargetFrameworks>
     <Authors>Eugene Klimeshuk (Molnix888)</Authors>
     <Product>ObjPropsDynamicSetter</Product>
     <Description>A small library for manipulating properties via their names known only at runtime</Description>
