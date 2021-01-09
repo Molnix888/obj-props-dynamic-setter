@@ -8,7 +8,7 @@ namespace ObjPropsDynamicSetter.Test.Unit.ModelBuilders
 {
     public static class TestClassBuilder
     {
-        public static TestClass Build() => new TestClass
+        public static TestClass Build() => new()
         {
             TestField = RandomUtil.Randomizer.Next(),
             ObjectValue = RandomUtil.Randomizer.NextBool(),
@@ -29,6 +29,7 @@ namespace ObjPropsDynamicSetter.Test.Unit.ModelBuilders
             EnumValue = RandomUtil.Randomizer.NextEnum<TestEnumeration>(),
             TestStruct = TestStructBuilder.Build(),
             IntCollectionValue = new List<int> { RandomUtil.Randomizer.Next(), RandomUtil.Randomizer.Next(), RandomUtil.Randomizer.Next() },
+            TestRecord = TestRecordBuilder.Build(),
             InternalShortValue = RandomUtil.Randomizer.NextShort(),
         };
     }

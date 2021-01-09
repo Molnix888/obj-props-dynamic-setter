@@ -40,7 +40,7 @@ namespace ObjPropsDynamicSetter.Test.Unit.Models
 
         public long LongValue { get; set; }
 
-        public ulong ULongValue { get; set; }
+        public ulong ULongValue { get; init; }
 
         public ushort UShortValue { get; set; }
 
@@ -61,6 +61,8 @@ namespace ObjPropsDynamicSetter.Test.Unit.Models
         public TestStruct TestStruct { get; set; }
 
         public IEnumerable<int> IntCollectionValue { get; set; }
+
+        public TestRecord TestRecord { get; set; }
 
         internal short InternalShortValue { get; set; }
 

@@ -14,6 +14,7 @@ namespace ObjPropsDynamicSetter.Test.Unit
     {
         private static readonly TestClass TestClass = TestClassBuilder.Build();
         private static readonly TestStruct TestStruct = TestStructBuilder.Build();
+        private static readonly TestRecord TestRecord = TestRecordBuilder.Build();
 
         [Test]
         public void GetPropertyInfoDefaultFlagsSuccess()
@@ -65,6 +66,16 @@ namespace ObjPropsDynamicSetter.Test.Unit
         }
 
         [Test]
+        public void SetPropertyValueTestRecordSuccess()
+        {
+            var obj = TestRecordBuilder.Build();
+            var propertyName = "IntValue";
+            var value = RandomUtil.Randomizer.Next();
+            _ = obj.SetPropertyValue<TestRecord>(propertyName, value);
+            Assert.That(obj.GetPropertyValue<int>(propertyName), Is.EqualTo(value));
+        }
+
+        [Test]
         [TestCaseSource(nameof(GetRequiredDataInvalidCommon))]
         [TestCaseSource(nameof(GetRequiredDataInvalidForSetValue))]
         public void SetPropertyValueThrowsException(object obj, string propertyName, ExactTypeConstraint throwsException, string exceptionMessage)
@@ -104,7 +115,9 @@ namespace ObjPropsDynamicSetter.Test.Unit
             yield return new object[] { TestClass, "IntCollectionValue", typeof(IEnumerable<int>), false };
             yield return new object[] { TestClass, "StaticIntValue", typeof(int), false };
             yield return new object[] { TestClass, "InternalShortValue", typeof(short), true };
+            yield return new object[] { TestClass, "TestRecord", typeof(TestRecord), false };
             yield return new object[] { TestStruct, "NestedTestClass", typeof(NestedTestClass), false };
+            yield return new object[] { TestRecord, "StringValue", typeof(string), false };
         }
 
         private static IEnumerable<object[]> GetValidDataForGetValue()
@@ -138,7 +151,9 @@ namespace ObjPropsDynamicSetter.Test.Unit
             yield return new object[] { TestClass, "IntCollectionValue", TestClass.IntCollectionValue, false };
             yield return new object[] { TestClass, "StaticIntValue", TestClass.StaticIntValue, false };
             yield return new object[] { TestClass, "InternalShortValue", TestClass.InternalShortValue, true };
+            yield return new object[] { TestClass, "TestRecord", TestClass.TestRecord, false };
             yield return new object[] { TestStruct, "NestedTestStruct", TestStruct.NestedTestStruct, false };
+            yield return new object[] { TestRecord, "IntValue", TestRecord.IntValue, false };
         }
 
         private static IEnumerable<object[]> GetValidTestClassDataForSetValue()
@@ -174,6 +189,7 @@ namespace ObjPropsDynamicSetter.Test.Unit
             yield return new object[] { "IntCollectionValue", new[] { RandomUtil.Randomizer.Next(), RandomUtil.Randomizer.Next() }, false };
             yield return new object[] { "StaticIntValue", RandomUtil.Randomizer.Next(), false };
             yield return new object[] { "InternalShortValue", RandomUtil.Randomizer.NextShort(), true };
+            yield return new object[] { "TestRecord", TestRecordBuilder.Build(), false };
         }
 
         private static IEnumerable<object[]> GetValidTestStructDataForSetValue()
@@ -200,6 +216,7 @@ namespace ObjPropsDynamicSetter.Test.Unit
             yield return new object[] { TestClass, "ProtectedNestedTestClass", Throws.ArgumentException, "Property ProtectedNestedTestClass not found in ObjPropsDynamicSetter.Test.Unit.Models.TestClass." };
             yield return new object[] { TestClass, "ProtectedNestedTestClass.PrivateIntValue", Throws.ArgumentException, "Property ProtectedNestedTestClass not found in ObjPropsDynamicSetter.Test.Unit.Models.TestClass." };
             yield return new object[] { TestStruct, "Missing", Throws.ArgumentException, "Property Missing not found in ObjPropsDynamicSetter.Test.Unit.Models.TestStruct." };
+            yield return new object[] { TestRecord, "Any", Throws.ArgumentException, "Property Any not found in ObjPropsDynamicSetter.Test.Unit.Models.TestRecord." };
         }
 
         private static IEnumerable<object[]> GetRequiredDataInvalidForSetValue()
