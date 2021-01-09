@@ -5,7 +5,7 @@ namespace ObjPropsDynamicSetter.Test.Unit.ModelBuilders
 {
     public static class TestStructBuilder
     {
-        public static TestStruct Build() => new TestStruct
+        public static TestStruct Build() => new()
         {
             IntValue = RandomUtil.Randomizer.Next(),
             ByteValue = RandomUtil.Randomizer.NextByte(),
