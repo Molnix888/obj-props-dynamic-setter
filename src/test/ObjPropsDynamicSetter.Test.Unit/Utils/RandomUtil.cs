@@ -4,6 +4,6 @@ namespace ObjPropsDynamicSetter.Test.Unit.Utils
 {
     public static class RandomUtil
     {
-        public static Randomizer Randomizer => new Randomizer();
+        public static Randomizer Randomizer => new();
     }
 }

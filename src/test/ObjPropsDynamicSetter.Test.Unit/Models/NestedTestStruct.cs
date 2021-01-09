@@ -8,7 +8,7 @@ namespace ObjPropsDynamicSetter.Test.Unit.Models
 
         public static bool operator ==(NestedTestStruct left, NestedTestStruct right) => left.Equals(right);
 
-        public static bool operator !=(NestedTestStruct left, NestedTestStruct right) => !(left == right);
+        public static bool operator !=(NestedTestStruct left, NestedTestStruct right) => !left.Equals(right);
 
         public override int GetHashCode() => HashCode.Combine(NestedCharValue);
 

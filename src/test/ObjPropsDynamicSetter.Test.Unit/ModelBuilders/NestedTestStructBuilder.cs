@@ -6,7 +6,7 @@ namespace ObjPropsDynamicSetter.Test.Unit.ModelBuilders
 {
     public static class NestedTestStructBuilder
     {
-        public static NestedTestStruct Build() => new NestedTestStruct
+        public static NestedTestStruct Build() => new()
         {
             NestedCharValue = RandomUtil.Randomizer.NextChar(),
         };
