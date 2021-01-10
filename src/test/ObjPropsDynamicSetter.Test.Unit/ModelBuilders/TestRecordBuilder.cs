@@ -3,8 +3,8 @@ using ObjPropsDynamicSetter.Test.Unit.Utils;
 
 namespace ObjPropsDynamicSetter.Test.Unit.ModelBuilders
 {
-    public static class TestRecordBuilder
+    internal static class TestRecordBuilder
     {
-        public static TestRecord Build() => new(RandomUtil.Randomizer.GetString(), RandomUtil.Randomizer.Next());
+        internal static TestRecord Build() => new(RandomUtil.Randomizer.GetString(), RandomUtil.Randomizer.Next());
     }
 }

@@ -3,9 +3,9 @@ using ObjPropsDynamicSetter.Test.Unit.Utils;
 
 namespace ObjPropsDynamicSetter.Test.Unit.ModelBuilders
 {
-    public static class NestedTestClassBuilder
+    internal static class NestedTestClassBuilder
     {
-        public static NestedTestClass Build() => new()
+        internal static NestedTestClass Build() => new()
         {
             NestedStringValue = RandomUtil.Randomizer.GetString(),
         };

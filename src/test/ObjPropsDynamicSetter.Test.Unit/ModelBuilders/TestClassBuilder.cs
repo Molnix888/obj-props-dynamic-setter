@@ -6,9 +6,9 @@ using ObjPropsDynamicSetter.Test.Unit.Utils;
 
 namespace ObjPropsDynamicSetter.Test.Unit.ModelBuilders
 {
-    public static class TestClassBuilder
+    internal static class TestClassBuilder
     {
-        public static TestClass Build() => new()
+        internal static TestClass Build() => new()
         {
             TestField = RandomUtil.Randomizer.Next(),
             ObjectValue = RandomUtil.Randomizer.NextBool(),
