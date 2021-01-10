@@ -2,8 +2,8 @@ using NUnit.Framework.Internal;
 
 namespace ObjPropsDynamicSetter.Test.Unit.Utils
 {
-    public static class RandomUtil
+    internal static class RandomUtil
     {
-        public static Randomizer Randomizer => new();
+        internal static Randomizer Randomizer => new();
     }
 }

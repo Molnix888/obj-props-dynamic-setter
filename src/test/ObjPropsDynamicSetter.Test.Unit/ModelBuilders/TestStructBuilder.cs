@@ -3,9 +3,9 @@ using ObjPropsDynamicSetter.Test.Unit.Utils;
 
 namespace ObjPropsDynamicSetter.Test.Unit.ModelBuilders
 {
-    public static class TestStructBuilder
+    internal static class TestStructBuilder
     {
-        public static TestStruct Build() => new()
+        internal static TestStruct Build() => new()
         {
             IntValue = RandomUtil.Randomizer.Next(),
             ByteValue = RandomUtil.Randomizer.NextByte(),
