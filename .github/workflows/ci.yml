@@ -15,11 +15,11 @@ jobs:
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: '5.0.101'
+          dotnet-version: '5.0.x'
       - name: Install Stryker
         run: dotnet tool install -g dotnet-stryker
       - name: Lint Code Base
-        uses: docker://ghcr.io/github/super-linter:latest
+        uses: github/super-linter@v3
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Install dependencies
@@ -29,7 +29,9 @@ jobs:
       - name: Unit Tests
         run: dotnet test **/ObjPropsDynamicSetter.Test.sln --no-restore --verbosity normal --collect:"XPlat Code Coverage"
       - name: Mutation Tests
-        run: dotnet stryker -tp "['src/test/ObjPropsDynamicSetter.Test.Unit/ObjPropsDynamicSetter.Test.Unit.csproj']" -ca perTestInIsolation -r "['dashboard']" --dashboard-api-key ${{ secrets.STRYKER_API_KEY }} --dashboard-project "github.com/Molnix888/obj-props-dynamic-setter" --dashboard-version ${GITHUB_REF##*/}
+        run: |
+          cd **/test/*.Unit
+          dotnet stryker -level Complete -ca perTestInIsolation -r "['dashboard']" --dashboard-api-key ${{ secrets.STRYKER_API_KEY }} --dashboard-project "github.com/Molnix888/obj-props-dynamic-setter" --dashboard-version ${GITHUB_REF##*/}
       - name: Move Code Coverage Report
         run: find -name coverage.cobertura.xml -exec mv {} ${{ github.workspace }} \;
       - name: Run codacy-coverage-reporter
@@ -49,7 +51,7 @@ jobs:
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: '5.0.101'
+          dotnet-version: '5.0.x'
       - name: Install GitVersion
         uses: gittools/actions/gitversion/setup@v0.9.8
         with:
