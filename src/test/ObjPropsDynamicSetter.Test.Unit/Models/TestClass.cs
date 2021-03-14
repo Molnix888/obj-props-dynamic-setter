@@ -14,6 +14,12 @@ namespace ObjPropsDynamicSetter.Test.Unit.Models
 #pragma warning restore IDE1006 // Naming Styles
 #pragma warning restore CA1051 // Do not declare visible instance fields
 
+        public TestClass(bool readOnlyBoolValue, NestedTestClass protectedNestedTestClass)
+        {
+            ReadOnlyBoolValue = readOnlyBoolValue;
+            ProtectedNestedTestClass = protectedNestedTestClass;
+        }
+
 #pragma warning disable S3264 // Events should be invoked
 #pragma warning disable CS0067 // Events should be used
         public event EventHandler TestEvent;
@@ -22,7 +28,7 @@ namespace ObjPropsDynamicSetter.Test.Unit.Models
 
         public static int StaticIntValue { get; set; } = RandomUtil.Randomizer.Next();
 
-        public bool ReadOnlyBoolValue { get; } = RandomUtil.Randomizer.NextBool();
+        public bool ReadOnlyBoolValue { get; }
 
         public object ObjectValue { get; set; }
 
@@ -66,13 +72,8 @@ namespace ObjPropsDynamicSetter.Test.Unit.Models
 
         internal short InternalShortValue { get; set; }
 
-        protected static NestedTestClass ProtectedNestedTestClass { get; set; } = new NestedTestClass { NestedStringValue = "foo" };
+        protected static NestedTestClass ProtectedNestedTestClass { get; set; }
 
-#pragma warning disable CA1822 // Mark members as static
-        public void TestMethod()
-#pragma warning restore CA1822 // Mark members as static
-        {
-            // Empty
-        }
+        public void TestMethod() => TestField = default;
     }
 }
