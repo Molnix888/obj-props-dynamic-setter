@@ -8,7 +8,7 @@ namespace ObjPropsDynamicSetter.Test.Unit.ModelBuilders
 {
     internal static class TestClassBuilder
     {
-        internal static TestClass Build() => new()
+        internal static TestClass Build(int testStructNestedTestClassPrivateIntValue, NestedTestClass protectedNestedTestClass) => new(RandomUtil.Randomizer.NextBool(), protectedNestedTestClass)
         {
             TestField = RandomUtil.Randomizer.Next(),
             ObjectValue = RandomUtil.Randomizer.NextBool(),
@@ -27,7 +27,7 @@ namespace ObjPropsDynamicSetter.Test.Unit.ModelBuilders
             NullableIntValue = RandomUtil.Randomizer.Next(),
             NullableDateTimeValue = DateTime.Today,
             EnumValue = RandomUtil.Randomizer.NextEnum<TestEnumeration>(),
-            TestStruct = TestStructBuilder.Build(),
+            TestStruct = TestStructBuilder.Build(testStructNestedTestClassPrivateIntValue),
             IntCollectionValue = new List<int> { RandomUtil.Randomizer.Next(), RandomUtil.Randomizer.Next(), RandomUtil.Randomizer.Next() },
             TestRecord = TestRecordBuilder.Build(),
             InternalShortValue = RandomUtil.Randomizer.NextShort(),

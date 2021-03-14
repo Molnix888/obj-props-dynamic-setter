@@ -47,8 +47,11 @@ namespace ObjPropsDynamicSetter.Test.Unit
         private const string TestRecordValue = "TestRecord";
         private const string ProtectedNestedTestClassPrivateIntValue = "ProtectedNestedTestClass.PrivateIntValue";
 
-        private static readonly TestClass TestClass = TestClassBuilder.Build();
-        private static readonly TestStruct TestStruct = TestStructBuilder.Build();
+        private static readonly int ValueForPrivateInt = RandomUtil.Randomizer.Next();
+
+        private static readonly NestedTestClass NestedTestClass = NestedTestClassBuilder.Build(RandomUtil.Randomizer.Next());
+        private static readonly TestClass TestClass = TestClassBuilder.Build(ValueForPrivateInt, NestedTestClass);
+        private static readonly TestStruct TestStruct = TestStructBuilder.Build(RandomUtil.Randomizer.Next());
         private static readonly TestRecord TestRecord = TestRecordBuilder.Build();
 
         [Test]
@@ -82,7 +85,7 @@ namespace ObjPropsDynamicSetter.Test.Unit
         [TestCaseSource(nameof(GetValidTestClassDataForSetValue))]
         public void SetPropertyValueTestClassSuccess(string propertyName, object value, bool includeNonPublic)
         {
-            var obj = TestClassBuilder.Build();
+            var obj = TestClassBuilder.Build(RandomUtil.Randomizer.Next(), NestedTestClassBuilder.Build(RandomUtil.Randomizer.Next()));
             _ = obj.SetPropertyValue<TestClass>(propertyName, value, includeNonPublic);
             Assert.That(obj.GetPropertyValue<object>(propertyName, includeNonPublic), Is.EqualTo(value));
         }
@@ -91,7 +94,7 @@ namespace ObjPropsDynamicSetter.Test.Unit
         [TestCaseSource(nameof(GetValidTestStructDataForSetValue))]
         public void SetPropertyValueTestStructDefaultFlagsSuccess(string propertyName, object value)
         {
-            var obj = TestStructBuilder.Build();
+            var obj = TestStructBuilder.Build(RandomUtil.Randomizer.Next());
             obj = obj.SetPropertyValue<TestStruct>(propertyName, value);
             Assert.That(obj.GetPropertyValue<object>(propertyName), Is.EqualTo(value));
         }
@@ -174,10 +177,10 @@ namespace ObjPropsDynamicSetter.Test.Unit
             yield return new object[] { TestClass, TestStructByteValue, TestClass.TestStruct.ByteValue, false };
             yield return new object[] { TestClass, TestStructNestedTestClassValue, TestClass.TestStruct.NestedTestClass, false };
             yield return new object[] { TestClass, TestStructNestedTestClassNestedStringValue, TestClass.TestStruct.NestedTestClass.NestedStringValue, false };
-            yield return new object[] { TestClass, TestStructNestedTestClassPrivateIntValue, 778567, true };
+            yield return new object[] { TestClass, TestStructNestedTestClassPrivateIntValue, ValueForPrivateInt, true };
             yield return new object[] { TestClass, TestStructNestedTestStructValue, TestClass.TestStruct.NestedTestStruct, true };
             yield return new object[] { TestClass, TestStructNestedTestStructNestedCharValue, TestClass.TestStruct.NestedTestStruct.NestedCharValue, false };
-            yield return new object[] { TestClass, ProtectedNestedTestClassNestedStringValue, "foo", true };
+            yield return new object[] { TestClass, ProtectedNestedTestClassNestedStringValue, NestedTestClass.NestedStringValue, true };
             yield return new object[] { TestClass, IntCollectionValue, TestClass.IntCollectionValue, false };
             yield return new object[] { TestClass, StaticIntValue, TestClass.StaticIntValue, false };
             yield return new object[] { TestClass, InternalShortValue, TestClass.InternalShortValue, true };
@@ -208,9 +211,9 @@ namespace ObjPropsDynamicSetter.Test.Unit
             yield return new object[] { NullableDateTimeValue, null, true };
             yield return new object[] { NullableDateTimeValue, DateTime.Now, false };
             yield return new object[] { EnumValue, RandomUtil.Randomizer.NextEnum<TestEnumeration>(), false };
-            yield return new object[] { TestStructValue, TestStructBuilder.Build(), false };
+            yield return new object[] { TestStructValue, TestStructBuilder.Build(RandomUtil.Randomizer.Next()), false };
             yield return new object[] { TestStructByteValue, RandomUtil.Randomizer.NextByte(), false };
-            yield return new object[] { TestStructNestedTestClassValue, NestedTestClassBuilder.Build(), false };
+            yield return new object[] { TestStructNestedTestClassValue, NestedTestClassBuilder.Build(RandomUtil.Randomizer.Next()), false };
             yield return new object[] { TestStructNestedTestClassNestedStringValue, RandomUtil.Randomizer.GetString(), false };
             yield return new object[] { TestStructNestedTestClassPrivateIntValue, RandomUtil.Randomizer.Next(), true };
             yield return new object[] { TestStructNestedTestStructValue, NestedTestStructBuilder.Build(), true };
@@ -225,19 +228,20 @@ namespace ObjPropsDynamicSetter.Test.Unit
         private static IEnumerable<object[]> GetValidTestStructDataForSetValue()
         {
             yield return new object[] { IntValue, RandomUtil.Randomizer.Next() };
-            yield return new object[] { NestedTestClassValue, NestedTestClassBuilder.Build() };
+            yield return new object[] { NestedTestClassValue, NestedTestClassBuilder.Build(RandomUtil.Randomizer.Next()) };
             yield return new object[] { NestedTestStructValue, NestedTestStructBuilder.Build() };
         }
 
         private static IEnumerable<object[]> GetRequiredDataInvalidCommon()
         {
             const string nameExceptionMessage = "Property name cannot be null or empty.";
+            var notExistingProperty = RandomUtil.Randomizer.GetString();
 
-            yield return new object[] { null, "test", Throws.ArgumentNullException, "Value cannot be null. (Parameter 'obj')" };
+            yield return new object[] { null, notExistingProperty, Throws.ArgumentNullException, "Value cannot be null. (Parameter 'obj')" };
             yield return new object[] { TestClass, null, Throws.ArgumentException, nameExceptionMessage };
             yield return new object[] { TestClass, string.Empty, Throws.ArgumentException, nameExceptionMessage };
             yield return new object[] { TestClass, " ", Throws.ArgumentException, "Property   not found in ObjPropsDynamicSetter.Test.Unit.Models.TestClass." };
-            yield return new object[] { TestClass, "Absent", Throws.ArgumentException, "Property Absent not found in ObjPropsDynamicSetter.Test.Unit.Models.TestClass." };
+            yield return new object[] { TestClass, notExistingProperty, Throws.ArgumentException, $"Property {notExistingProperty} not found in ObjPropsDynamicSetter.Test.Unit.Models.TestClass." };
             yield return new object[] { TestClass, "TestField", Throws.ArgumentException, "Property TestField not found in ObjPropsDynamicSetter.Test.Unit.Models.TestClass." };
             yield return new object[] { TestClass, "TestEvent", Throws.ArgumentException, "Property TestEvent not found in ObjPropsDynamicSetter.Test.Unit.Models.TestClass." };
             yield return new object[] { TestClass, "TestMethod", Throws.ArgumentException, "Property TestMethod not found in ObjPropsDynamicSetter.Test.Unit.Models.TestClass." };
@@ -245,8 +249,8 @@ namespace ObjPropsDynamicSetter.Test.Unit
             yield return new object[] { TestClass, TestStructNestedTestClassPrivateIntValue, Throws.ArgumentException, "Property PrivateIntValue not found in ObjPropsDynamicSetter.Test.Unit.Models.NestedTestClass." };
             yield return new object[] { TestClass, "ProtectedNestedTestClass", Throws.ArgumentException, "Property ProtectedNestedTestClass not found in ObjPropsDynamicSetter.Test.Unit.Models.TestClass." };
             yield return new object[] { TestClass, ProtectedNestedTestClassPrivateIntValue, Throws.ArgumentException, "Property ProtectedNestedTestClass not found in ObjPropsDynamicSetter.Test.Unit.Models.TestClass." };
-            yield return new object[] { TestStruct, "Missing", Throws.ArgumentException, "Property Missing not found in ObjPropsDynamicSetter.Test.Unit.Models.TestStruct." };
-            yield return new object[] { TestRecord, "Any", Throws.ArgumentException, "Property Any not found in ObjPropsDynamicSetter.Test.Unit.Models.TestRecord." };
+            yield return new object[] { TestStruct, notExistingProperty, Throws.ArgumentException, $"Property {notExistingProperty} not found in ObjPropsDynamicSetter.Test.Unit.Models.TestStruct." };
+            yield return new object[] { TestRecord, notExistingProperty, Throws.ArgumentException, $"Property {notExistingProperty} not found in ObjPropsDynamicSetter.Test.Unit.Models.TestRecord." };
         }
 
         private static IEnumerable<object[]> GetRequiredDataInvalidForSetValue()
