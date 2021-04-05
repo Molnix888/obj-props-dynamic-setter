@@ -20,18 +20,18 @@ var propertyName = "Foo";
 var propertyInfo = model.GetPropertyInfo(propertyName);
 
 // Property value retrieval
-var propertyValue = model.GetPropertyValue<object>(propertyName);
+var propertyValue = model.GetPropertyValue(propertyName);
 
 // Setting new value to a property
 var value = 1000;
-model.SetPropertyValue<Model>(propertyName, value);
+model.SetPropertyValue(propertyName, value);
 ```
 
 Public properties are accessible by default.
 To access non-public ones, optional parameter 'includeNonPublic' should be set to 'true':
 
 ```csharp
-model.SetPropertyValue<Model>(propertyName, value, true);
+model.SetPropertyValue(propertyName, value, true);
 ```
 
 To access nested property, full path should be specified with dot ('.') as delimiter:
@@ -51,7 +51,7 @@ public class NestedModel
 var model = new Model();
 var propertyName = "NestedModel.Bar";
 
-var value = model.GetPropertyValue<int>(propertyName);
+var value = model.GetPropertyValue(propertyName);
 ```
 
 ## Download
