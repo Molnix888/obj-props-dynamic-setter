@@ -1,0 +1,32 @@
+name: Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '5.0.x'
+      - name: Install dependencies
+        run: dotnet restore **/ObjPropsDynamicSetter.sln
+      - name: Build
+        run: dotnet build **/ObjPropsDynamicSetter.sln -c Release --no-restore
+      - name: Run Unit Tests
+        run: dotnet test **/ObjPropsDynamicSetter.Test.Unit.csproj --no-restore --verbosity normal --collect:"XPlat Code Coverage"
+      - name: Move Code Coverage Report
+        run: find -name coverage.cobertura.xml -exec mv {} ${{ github.workspace }} \;
+      - name: Run codacy-coverage-reporter
+        if: github.repository == 'Molnix888/obj-props-dynamic-setter'
+        uses: codacy/codacy-coverage-reporter-action@master
+        with:
+          project-token: ${{ secrets.CODACY_TOKEN }}
+          coverage-reports: coverage.cobertura.xml
