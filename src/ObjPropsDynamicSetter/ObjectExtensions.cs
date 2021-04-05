@@ -112,7 +112,9 @@ namespace ObjPropsDynamicSetter
             return obj;
 
             static void SetPropertyValue(object obj, PropertyInfo propertyInfo, object value) =>
-                propertyInfo.SetValue(obj, value is IConvertible ? Convert.ChangeType(value, Nullable.GetUnderlyingType(propertyInfo.PropertyType) ?? propertyInfo.PropertyType, CultureInfo.InvariantCulture) : value);
+                propertyInfo.SetValue(
+                    obj,
+                    value is IConvertible ? Convert.ChangeType(value, Nullable.GetUnderlyingType(propertyInfo.PropertyType) ?? propertyInfo.PropertyType, CultureInfo.InvariantCulture) : value);
         }
 
         private static (string Name, ICollection<string> PathItems, PropertyInfo Info) GetFirstPropertyDetails(object obj, ICollection<string> pathItems, bool includeNonPublic)

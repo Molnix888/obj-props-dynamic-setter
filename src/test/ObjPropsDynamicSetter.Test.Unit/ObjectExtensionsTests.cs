@@ -111,8 +111,11 @@ namespace ObjPropsDynamicSetter.Test.Unit
         [Test]
         [TestCaseSource(nameof(GetRequiredDataInvalidCommon))]
         [TestCaseSource(nameof(GetRequiredDataInvalidForSetValue))]
-        public void SetPropertyValueThrowsException(object obj, string propertyName, ExactTypeConstraint throwsException, string exceptionMessage) =>
-            Assert.That(() => obj.SetPropertyValue(propertyName, RandomUtil.Randomizer.Next(256, int.MaxValue)), throwsException?.With.Message.EqualTo(exceptionMessage));
+        public void SetPropertyValueThrowsException(object obj, string propertyName, ExactTypeConstraint throwsException, string exceptionMessage)
+        {
+            const int notByte = 256;
+            Assert.That(() => obj.SetPropertyValue(propertyName, RandomUtil.Randomizer.Next(notByte, int.MaxValue)), throwsException?.With.Message.EqualTo(exceptionMessage));
+        }
 
         private static IEnumerable<object[]> GetValidDataForGetPropertyInfo()
         {
