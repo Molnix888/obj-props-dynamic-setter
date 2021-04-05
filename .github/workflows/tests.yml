@@ -21,7 +21,7 @@ jobs:
       - name: Build
         run: dotnet build **/ObjPropsDynamicSetter.sln -c Release --no-restore
       - name: Run Unit Tests
-        run: dotnet test **/ObjPropsDynamicSetter.Test.Unit.csproj --no-restore --verbosity normal --collect:"XPlat Code Coverage"
+        run: dotnet test **/test/*.Unit/*.csproj --no-restore --verbosity normal --collect:"XPlat Code Coverage"
       - name: Move Code Coverage Report
         run: find -name coverage.cobertura.xml -exec mv {} ${{ github.workspace }} \;
       - name: Run codacy-coverage-reporter
