@@ -1,15 +1,15 @@
 name: Mutation Tests
 
 on:
-  push:
+  workflow_run:
+    workflows: ["Tests"]
     branches: [main]
-  pull_request_target:
-    types: [labeled]
+    types: [completed]
 
 jobs:
   mutation-tests:
     runs-on: ubuntu-latest
-    if: contains(github.event.pull_request.labels.*.name, 'verified')
+    if: github.event.workflow_run.conclusion == 'success' && github.repository == 'Molnix888/obj-props-dynamic-setter'
     steps:
       - name: Checkout Code
         uses: actions/checkout@v2
