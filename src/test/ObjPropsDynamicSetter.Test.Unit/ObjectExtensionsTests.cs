@@ -60,7 +60,8 @@ namespace ObjPropsDynamicSetter.Test.Unit
 
         [Test]
         [TestCaseSource(nameof(GetValidDataForGetPropertyInfo))]
-        public void GetPropertyInfoSuccess(object obj, string propertyName, Type type, bool includeNonPublic) => Assert.That(obj.GetPropertyInfo(propertyName, includeNonPublic).PropertyType, Is.EqualTo(type));
+        public void GetPropertyInfoSuccess(object obj, string propertyName, Type type, bool includeNonPublic) =>
+            Assert.That(obj.GetPropertyInfo(propertyName, includeNonPublic).PropertyType, Is.EqualTo(type));
 
         [Test]
         [TestCaseSource(nameof(GetRequiredDataInvalidCommon))]
@@ -72,7 +73,8 @@ namespace ObjPropsDynamicSetter.Test.Unit
 
         [Test]
         [TestCaseSource(nameof(GetValidDataForGetValue))]
-        public void GetPropertyValueSuccess(object obj, string propertyName, object value, bool includeNonPublic) => Assert.That(obj.GetPropertyValue(propertyName, includeNonPublic), Is.EqualTo(value));
+        public void GetPropertyValueSuccess(object obj, string propertyName, object value, bool includeNonPublic) =>
+            Assert.That(obj.GetPropertyValue(propertyName, includeNonPublic), Is.EqualTo(value));
 
         [Test]
         [TestCaseSource(nameof(GetRequiredDataInvalidCommon))]
