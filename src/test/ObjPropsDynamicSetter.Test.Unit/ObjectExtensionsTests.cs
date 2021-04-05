@@ -10,6 +10,7 @@ using ObjPropsDynamicSetter.Test.Unit.Utils;
 namespace ObjPropsDynamicSetter.Test.Unit
 {
     [Parallelizable(ParallelScope.All)]
+    [FixtureLifeCycle(LifeCycle.InstancePerTestCase)]
     public class ObjectExtensionsTests
     {
         private const string NestedTestStructValue = "NestedTestStruct";
