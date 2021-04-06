@@ -83,7 +83,7 @@ namespace ObjPropsDynamicSetter
         public static TObj SetPropertyValue<TObj, TValue>(this TObj obj, string name, TValue value, bool includeNonPublic)
         {
             ValidateParameters(obj, name);
-            return (TObj)obj.SetPropertyValue(GetPropertyPathItems(name), value, includeNonPublic);
+            return (TObj)SetPropertyValue(obj, GetPropertyPathItems(name), value, includeNonPublic);
         }
 
         private static (object Value, PropertyInfo PropertyInfo) GetPropertyDetails(object obj, ICollection<string> propertyPathItems, bool includeNonPublic)
@@ -94,24 +94,24 @@ namespace ObjPropsDynamicSetter
                 : (propertyInfo.GetValue(obj), propertyInfo);
         }
 
-        private static object SetPropertyValue(this object obj, ICollection<string> propertyPathItems, object value, bool includeNonPublic)
+        private static object SetPropertyValue(object obj, ICollection<string> propertyPathItems, object value, bool includeNonPublic)
         {
             var (propertyName, cutPropertyPathItems, propertyInfo) = GetFirstPropertyDetails(obj, propertyPathItems, includeNonPublic);
             if (cutPropertyPathItems.Any())
             {
                 var innerObject = propertyInfo.GetValue(obj);
-                _ = innerObject.SetPropertyValue(cutPropertyPathItems, value, includeNonPublic);
+                _ = SetPropertyValue(innerObject, cutPropertyPathItems, value, includeNonPublic);
                 propertyInfo = GetObjectPropertyInfo(obj, propertyName, includeNonPublic);
-                SetPropertyValue(obj, propertyInfo, innerObject);
+                SetValue(obj, propertyInfo, innerObject);
             }
             else
             {
-                SetPropertyValue(obj, propertyInfo, value);
+                SetValue(obj, propertyInfo, value);
             }
 
             return obj;
 
-            static void SetPropertyValue(object obj, PropertyInfo propertyInfo, object value) =>
+            static void SetValue(object obj, PropertyInfo propertyInfo, object value) =>
                 propertyInfo.SetValue(
                     obj,
                     value is IConvertible ? Convert.ChangeType(value, Nullable.GetUnderlyingType(propertyInfo.PropertyType) ?? propertyInfo.PropertyType, CultureInfo.InvariantCulture) : value);
