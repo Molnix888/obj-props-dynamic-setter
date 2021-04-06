@@ -10,6 +10,7 @@ using ObjPropsDynamicSetter.Test.Unit.Utils;
 namespace ObjPropsDynamicSetter.Test.Unit
 {
     [Parallelizable(ParallelScope.All)]
+    [FixtureLifeCycle(LifeCycle.InstancePerTestCase)]
     public class ObjectExtensionsTests
     {
         private const string NestedTestStructValue = "NestedTestStruct";
@@ -59,7 +60,8 @@ namespace ObjPropsDynamicSetter.Test.Unit
 
         [Test]
         [TestCaseSource(nameof(GetValidDataForGetPropertyInfo))]
-        public void GetPropertyInfoSuccess(object obj, string propertyName, Type type, bool includeNonPublic) => Assert.That(obj.GetPropertyInfo(propertyName, includeNonPublic).PropertyType, Is.EqualTo(type));
+        public void GetPropertyInfoSuccess(object obj, string propertyName, Type type, bool includeNonPublic) =>
+            Assert.That(obj.GetPropertyInfo(propertyName, includeNonPublic).PropertyType, Is.EqualTo(type));
 
         [Test]
         [TestCaseSource(nameof(GetRequiredDataInvalidCommon))]
@@ -67,27 +69,25 @@ namespace ObjPropsDynamicSetter.Test.Unit
             Assert.That(() => obj.GetPropertyInfo(propertyName), throwsException?.With.Message.EqualTo(exceptionMessage));
 
         [Test]
-        public void GetPropertyValueDefaultFlagsSuccess() => Assert.That(TestStruct.GetPropertyValue<NestedTestClass>(NestedTestClassValue), Is.EqualTo(TestStruct.NestedTestClass));
+        public void GetPropertyValueDefaultFlagsSuccess() => Assert.That(TestStruct.GetPropertyValue(NestedTestClassValue) as NestedTestClass, Is.EqualTo(TestStruct.NestedTestClass));
 
         [Test]
         [TestCaseSource(nameof(GetValidDataForGetValue))]
-        public void GetPropertyValueSuccess(object obj, string propertyName, object value, bool includeNonPublic) => Assert.That(obj.GetPropertyValue<object>(propertyName, includeNonPublic), Is.EqualTo(value));
+        public void GetPropertyValueSuccess(object obj, string propertyName, object value, bool includeNonPublic) =>
+            Assert.That(obj.GetPropertyValue(propertyName, includeNonPublic), Is.EqualTo(value));
 
         [Test]
         [TestCaseSource(nameof(GetRequiredDataInvalidCommon))]
         public void GetPropertyValueThrowsException(object obj, string propertyName, ExactTypeConstraint throwsException, string exceptionMessage) =>
-            Assert.That(() => obj.GetPropertyValue<object>(propertyName), throwsException?.With.Message.EqualTo(exceptionMessage));
-
-        [Test]
-        public void GetPropertyValueThrowsInvalidCastException() => Assert.That(() => TestClass.GetPropertyValue<TestStruct>(CharValue), Throws.TypeOf<InvalidCastException>());
+            Assert.That(() => obj.GetPropertyValue(propertyName), throwsException?.With.Message.EqualTo(exceptionMessage));
 
         [Test]
         [TestCaseSource(nameof(GetValidTestClassDataForSetValue))]
         public void SetPropertyValueTestClassSuccess(string propertyName, object value, bool includeNonPublic)
         {
             var obj = TestClassBuilder.Build(RandomUtil.Randomizer.Next(), NestedTestClassBuilder.Build(RandomUtil.Randomizer.Next()));
-            _ = obj.SetPropertyValue<TestClass>(propertyName, value, includeNonPublic);
-            Assert.That(obj.GetPropertyValue<object>(propertyName, includeNonPublic), Is.EqualTo(value));
+            _ = obj.SetPropertyValue(propertyName, value, includeNonPublic);
+            Assert.That(obj.GetPropertyValue(propertyName, includeNonPublic), Is.EqualTo(value));
         }
 
         [Test]
@@ -95,8 +95,8 @@ namespace ObjPropsDynamicSetter.Test.Unit
         public void SetPropertyValueTestStructDefaultFlagsSuccess(string propertyName, object value)
         {
             var obj = TestStructBuilder.Build(RandomUtil.Randomizer.Next());
-            obj = obj.SetPropertyValue<TestStruct>(propertyName, value);
-            Assert.That(obj.GetPropertyValue<object>(propertyName), Is.EqualTo(value));
+            obj = obj.SetPropertyValue(propertyName, value);
+            Assert.That(obj.GetPropertyValue(propertyName), Is.EqualTo(value));
         }
 
         [Test]
@@ -104,8 +104,8 @@ namespace ObjPropsDynamicSetter.Test.Unit
         {
             var obj = TestRecordBuilder.Build();
             var value = RandomUtil.Randomizer.Next();
-            _ = obj.SetPropertyValue<TestRecord>(IntValue, value);
-            Assert.That(obj.GetPropertyValue<int>(IntValue), Is.EqualTo(value));
+            _ = obj.SetPropertyValue(IntValue, value);
+            Assert.That(obj.GetPropertyValue(IntValue), Is.EqualTo(value));
         }
 
         [Test]
@@ -113,8 +113,8 @@ namespace ObjPropsDynamicSetter.Test.Unit
         [TestCaseSource(nameof(GetRequiredDataInvalidForSetValue))]
         public void SetPropertyValueThrowsException(object obj, string propertyName, ExactTypeConstraint throwsException, string exceptionMessage)
         {
-            var value = RandomUtil.Randomizer.Next(256, int.MaxValue);
-            Assert.That(() => obj.SetPropertyValue<object>(propertyName, value), throwsException?.With.Message.EqualTo(exceptionMessage));
+            const int notByte = 256;
+            Assert.That(() => obj.SetPropertyValue(propertyName, RandomUtil.Randomizer.Next(notByte, int.MaxValue)), throwsException?.With.Message.EqualTo(exceptionMessage));
         }
 
         private static IEnumerable<object[]> GetValidDataForGetPropertyInfo()
@@ -234,13 +234,13 @@ namespace ObjPropsDynamicSetter.Test.Unit
 
         private static IEnumerable<object[]> GetRequiredDataInvalidCommon()
         {
-            const string nameExceptionMessage = "Property name cannot be null or empty.";
+            const string nameExceptionMessage = "Property name cannot be null, empty or whitespace.";
             var notExistingProperty = RandomUtil.Randomizer.GetString();
 
             yield return new object[] { null, notExistingProperty, Throws.ArgumentNullException, "Value cannot be null. (Parameter 'obj')" };
             yield return new object[] { TestClass, null, Throws.ArgumentException, nameExceptionMessage };
             yield return new object[] { TestClass, string.Empty, Throws.ArgumentException, nameExceptionMessage };
-            yield return new object[] { TestClass, " ", Throws.ArgumentException, "Property   not found in ObjPropsDynamicSetter.Test.Unit.Models.TestClass." };
+            yield return new object[] { TestClass, " ", Throws.ArgumentException, nameExceptionMessage };
             yield return new object[] { TestClass, notExistingProperty, Throws.ArgumentException, $"Property {notExistingProperty} not found in ObjPropsDynamicSetter.Test.Unit.Models.TestClass." };
             yield return new object[] { TestClass, "TestField", Throws.ArgumentException, "Property TestField not found in ObjPropsDynamicSetter.Test.Unit.Models.TestClass." };
             yield return new object[] { TestClass, "TestEvent", Throws.ArgumentException, "Property TestEvent not found in ObjPropsDynamicSetter.Test.Unit.Models.TestClass." };
