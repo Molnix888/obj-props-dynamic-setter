@@ -21,7 +21,7 @@ jobs:
       - name: Build
         run: dotnet build **/ObjPropsDynamicSetter.sln -c Release --no-restore
       - name: Run Unit Tests
-        run: dotnet test **/test/*.Unit/*.csproj --no-restore --no-build --collect:"XPlat Code Coverage"
+        run: dotnet test **/test/*.Unit/*.csproj -c Release --no-restore --no-build --collect:"XPlat Code Coverage"
       - name: Upload Coverage Report to Codecov
         uses: codecov/codecov-action@v1
   mutation-tests:
