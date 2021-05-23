@@ -16,24 +16,18 @@ jobs:
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: '5.0.x'
-      - name: Install dependencies
+      - name: Install Dependencies
         run: dotnet restore **/ObjPropsDynamicSetter.sln
       - name: Build
         run: dotnet build **/ObjPropsDynamicSetter.sln -c Release --no-restore
       - name: Run Unit Tests
-        run: dotnet test **/test/*.Unit/*.csproj --no-restore --verbosity normal --collect:"XPlat Code Coverage"
-      - name: Move Code Coverage Report
-        run: find -name coverage.cobertura.xml -exec mv {} ${{ github.workspace }} \;
-      - name: Run codacy-coverage-reporter
-        if: github.repository == 'Molnix888/obj-props-dynamic-setter'
-        uses: codacy/codacy-coverage-reporter-action@master
-        with:
-          project-token: ${{ secrets.CODACY_TOKEN }}
-          coverage-reports: coverage.cobertura.xml
+        run: dotnet test **/test/*.Unit/*.csproj --no-restore --no-build --collect:"XPlat Code Coverage"
+      - name: Upload Coverage Report to Codecov
+        uses: codecov/codecov-action@v1
   mutation-tests:
     needs: test
     runs-on: ubuntu-latest
-    if: github.repository == 'Molnix888/obj-props-dynamic-setter'
+    if: github.repository == 'Molnix888/obj-props-dynamic-setter' && github.actor != 'dependabot[bot]'
     steps:
       - name: Checkout Code
         uses: actions/checkout@v2
@@ -54,7 +48,7 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v2
-      - name: Fetch all history for all tags and branches
+      - name: Fetch All History
         run: git fetch --prune --unshallow
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v1
