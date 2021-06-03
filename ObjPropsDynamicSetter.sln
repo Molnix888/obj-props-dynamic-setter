@@ -3,11 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30413.136
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ObjPropsDynamicSetter", "ObjPropsDynamicSetter\ObjPropsDynamicSetter.csproj", "{58512837-BB22-481F-B01F-22DDDA43CEAB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ObjPropsDynamicSetter", "src\ObjPropsDynamicSetter\ObjPropsDynamicSetter.csproj", "{58512837-BB22-481F-B01F-22DDDA43CEAB}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{B9DB420E-8489-4EBC-95F4-30FB00A9D613}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ObjPropsDynamicSetter.Test.Unit", "test\ObjPropsDynamicSetter.Test.Unit\ObjPropsDynamicSetter.Test.Unit.csproj", "{C204A625-7615-4A79-B636-C654809748CE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ObjPropsDynamicSetter.Test.Unit", "test\ObjPropsDynamicSetter.Test.Unit\ObjPropsDynamicSetter.Test.Unit.csproj", "{C204A625-7615-4A79-B636-C654809748CE}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{C4511136-4C44-4EB2-B767-62E595BB2546}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -28,6 +30,7 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
+		{58512837-BB22-481F-B01F-22DDDA43CEAB} = {C4511136-4C44-4EB2-B767-62E595BB2546}
 		{C204A625-7615-4A79-B636-C654809748CE} = {B9DB420E-8489-4EBC-95F4-30FB00A9D613}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
