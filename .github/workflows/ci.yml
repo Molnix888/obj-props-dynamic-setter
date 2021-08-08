@@ -27,7 +27,7 @@ jobs:
   mutation-tests:
     needs: test
     runs-on: ubuntu-latest
-    if: github.repository == 'Molnix888/obj-props-dynamic-setter' && github.actor != 'dependabot[bot]'
+    if: ${{ github.repository == 'Molnix888/obj-props-dynamic-setter' && github.actor != 'dependabot[bot]' }}
     steps:
       - name: Checkout Code
         uses: actions/checkout@v2
@@ -40,11 +40,11 @@ jobs:
       - name: Mutation Tests
         run: |
           cd test/*.Unit
-          dotnet stryker -level Complete -ca perTestInIsolation -r "['dashboard']" --dashboard-api-key ${{ secrets.STRYKER_API_KEY }} --dashboard-project "github.com/Molnix888/obj-props-dynamic-setter" --dashboard-version ${GITHUB_REF##*/}
+          dotnet stryker -level Complete -ca perTestInIsolation -r "['dashboard']" --dashboard-api-key "${{ secrets.STRYKER_API_KEY }}" --dashboard-project "github.com/Molnix888/obj-props-dynamic-setter" --dashboard-version "${GITHUB_REF##*/}"
   publish:
     needs: test
     runs-on: ubuntu-latest
-    if: github.event_name == 'push'
+    if: ${{ github.event_name == 'push' }}
     steps:
       - name: Checkout Code
         uses: actions/checkout@v2
