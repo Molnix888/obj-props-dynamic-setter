@@ -1,7 +1,6 @@
-# C# files
 [*.cs]
 
-## StyleCop rules ##
+## StyleCop rules
 
 # SA0001: Xml comment analysis disabled
 dotnet_diagnostic.SA0001.severity = none
@@ -24,7 +23,7 @@ dotnet_diagnostic.SA1615.severity = none
 # SA1618: Generic type parameters must be documented
 dotnet_diagnostic.SA1618.severity = none
 
-## Code Quality rules ##
+## Code Quality rules
 
 # CA5394: Do not use insecure randomness
 dotnet_diagnostic.CA5394.severity = none
