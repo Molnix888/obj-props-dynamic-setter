@@ -66,6 +66,6 @@ jobs:
       - name: Pack
         run: dotnet pack src/ObjPropsDynamicSetter/*.csproj -o nuget -c Release -p:PackageVersion=${{ steps.gitversion.outputs.semVer }}
       - name: Publish to NuGet
-        run: dotnet nuget push nuget/*.nupkg -k ${{ secrets.NUGET_API_KEY }} -s https://api.nuget.org/v3/index.json -n true --skip-duplicate
+        run: dotnet nuget push nuget/*.nupkg -k ${{ secrets.NUGET_API_KEY }} -s https://api.nuget.org/v3/index.json -n --skip-duplicate
       - name: Publish to GitHub Packages
         run: dotnet nuget push nuget/*.nupkg -s "github" -n true --skip-duplicate
