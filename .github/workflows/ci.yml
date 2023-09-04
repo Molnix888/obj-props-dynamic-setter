@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v3
         with:
@@ -30,7 +30,7 @@ jobs:
     if: ${{ github.repository == 'Molnix888/obj-props-dynamic-setter' && github.actor != 'dependabot[bot]' }}
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v3
         with:
@@ -47,7 +47,7 @@ jobs:
     if: ${{ github.event_name == 'push' }}
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Setup .NET Core
